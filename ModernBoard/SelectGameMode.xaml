@@ -1,0 +1,40 @@
+﻿<Window x:Class="ModernBoard.SelectGameMode"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ModernBoard"
+        mc:Ignorable="d"
+		  WindowStartupLocation="CenterOwner" WindowStyle="ToolWindow"
+        Title="Select Game Mode" Height="700" Width="500">
+	<Grid>
+		<Grid.Resources>
+			<CollectionViewSource Source="{Binding}" x:Key="cvs">
+				<CollectionViewSource.GroupDescriptions>
+					<PropertyGroupDescription PropertyName="FactoryGroup"/>
+				</CollectionViewSource.GroupDescriptions>
+			</CollectionViewSource>
+		</Grid.Resources>
+
+		<ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+			<ListBox ItemsSource="{Binding Source={StaticResource cvs}}" HorizontalContentAlignment="Stretch" MouseDoubleClick="GroupBox_OnMouseDoubleClick" Name="GroupBox">
+				<ItemsControl.GroupStyle>
+					<GroupStyle>
+						<GroupStyle.HeaderTemplate>
+							<DataTemplate>
+								<Border Margin="0,2" BorderThickness="0,1" BorderBrush="DarkRed" Background="LightYellow">
+									<TextBlock FontWeight="Bold" Text="{Binding Name}"/>
+								</Border>
+							</DataTemplate>
+						</GroupStyle.HeaderTemplate>
+					</GroupStyle>
+				</ItemsControl.GroupStyle>
+				<ItemsControl.ItemTemplate>
+					<DataTemplate>
+						<TextBlock Text="{Binding FactoryName}"/>
+					</DataTemplate>
+				</ItemsControl.ItemTemplate>
+			</ListBox>
+		</ScrollViewer>
+	</Grid>
+</Window>

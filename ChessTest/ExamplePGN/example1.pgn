@@ -1,0 +1,15 @@
+[Event "?"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "?"]
+[White "Whitey"]
+[Black "Blackey"]
+[Result "*"]
+[WhiteElo ""]
+[BlackElo ""]
+[ECO ""]
+[SetUp "1"]
+[FEN "r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3"]
+[CurrentPosition "r1bqkbnr/pppp1ppp/2n5/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 3 3"]
+
+{ Spanish } 3.Bb5 ( { Italian } 3.Bc4 Bc5 ) 3...a6  *

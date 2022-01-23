@@ -1,0 +1,386 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+    <Schema Namespace="ChessModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="Games">
+          <Key>
+            <PropertyRef Name="GameId" />
+          </Key>
+          <Property Name="GameId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Year" Type="smallint" />
+          <Property Name="Date" Type="date" />
+          <Property Name="Event" Type="nvarchar" MaxLength="255" />
+          <Property Name="Site" Type="varchar" MaxLength="255" />
+          <Property Name="Round" Type="varchar" MaxLength="50" />
+          <Property Name="WhiteName" Type="varchar" MaxLength="255" />
+          <Property Name="BlackName" Type="varchar" MaxLength="255" />
+          <Property Name="WhiteElo" Type="smallint" />
+          <Property Name="BlackElo" Type="smallint" />
+          <Property Name="Result" Type="tinyint" Nullable="false" />
+          <Property Name="ResultReason" Type="tinyint" Nullable="false" />
+          <Property Name="MoveCount" Type="smallint" Nullable="false" />
+          <Property Name="ECO" Type="char" MaxLength="3" />
+          <Property Name="PgnHash" Type="char" MaxLength="32" Nullable="false" />
+          <Property Name="GameHash" Type="char" MaxLength="32" Nullable="false" />
+          <Property Name="PGN" Type="nvarchar(max)" />
+        </EntityType>
+        <EntityType Name="Moves">
+          <Key>
+            <PropertyRef Name="GameId" />
+            <PropertyRef Name="PlyNumber" />
+          </Key>
+          <Property Name="GameId" Type="int" Nullable="false" />
+          <Property Name="PlyNumber" Type="smallint" Nullable="false" />
+          <Property Name="FromPositionId" Type="int" Nullable="false" />
+          <Property Name="ToPositionId" Type="int" Nullable="false" />
+          <Property Name="FromFile" Type="tinyint" Nullable="false" />
+          <Property Name="FromRank" Type="tinyint" Nullable="false" />
+          <Property Name="ToFile" Type="tinyint" Nullable="false" />
+          <Property Name="ToRank" Type="tinyint" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Positions">
+          <Key>
+            <PropertyRef Name="PositionId" />
+          </Key>
+          <Property Name="PositionId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="FEN" Type="varchar" MaxLength="255" Nullable="false" />
+          <Property Name="MoveNumber" Type="smallint" Nullable="false" />
+          <Property Name="PlysTo50" Type="tinyint" Nullable="false" />
+          <Property Name="EnPassantFile" Type="tinyint" />
+          <Property Name="WhiteToMove" Type="bit" Nullable="false" />
+          <Property Name="CanWhiteCastleKingSide" Type="bit" Nullable="false" />
+          <Property Name="CanWhiteCastleQueenSide" Type="bit" Nullable="false" />
+          <Property Name="CanBlackCastleKingSide" Type="bit" Nullable="false" />
+          <Property Name="CanBlackCastleQueenSide" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Squares">
+          <Key>
+            <PropertyRef Name="PositionId" />
+            <PropertyRef Name="Rank" />
+            <PropertyRef Name="File" />
+          </Key>
+          <Property Name="PositionId" Type="int" Nullable="false" />
+          <Property Name="Rank" Type="tinyint" Nullable="false" />
+          <Property Name="File" Type="tinyint" Nullable="false" />
+          <Property Name="Piece" Type="tinyint" Nullable="false" />
+          <Property Name="Captures" Type="tinyint" Nullable="false" />
+          <Property Name="White" Type="bit" Nullable="false" />
+        </EntityType>
+        <Association Name="FK_Moves_FromPositions">
+          <End Role="Positions" Type="Self.Positions" Multiplicity="1" />
+          <End Role="Moves" Type="Self.Moves" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Positions">
+              <PropertyRef Name="PositionId" />
+            </Principal>
+            <Dependent Role="Moves">
+              <PropertyRef Name="FromPositionId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Moves_Games">
+          <End Role="Games" Type="Self.Games" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="Moves" Type="Self.Moves" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Games">
+              <PropertyRef Name="GameId" />
+            </Principal>
+            <Dependent Role="Moves">
+              <PropertyRef Name="GameId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Moves_ToPositions">
+          <End Role="Positions" Type="Self.Positions" Multiplicity="1" />
+          <End Role="Moves" Type="Self.Moves" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Positions">
+              <PropertyRef Name="PositionId" />
+            </Principal>
+            <Dependent Role="Moves">
+              <PropertyRef Name="ToPositionId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Squares_Positions">
+          <End Role="Positions" Type="Self.Positions" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="Squares" Type="Self.Squares" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Positions">
+              <PropertyRef Name="PositionId" />
+            </Principal>
+            <Dependent Role="Squares">
+              <PropertyRef Name="PositionId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="ChessModelStoreContainer">
+          <EntitySet Name="Games" EntityType="Self.Games" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Moves" EntityType="Self.Moves" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Positions" EntityType="Self.Positions" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Squares" EntityType="Self.Squares" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK_Moves_FromPositions" Association="Self.FK_Moves_FromPositions">
+            <End Role="Positions" EntitySet="Positions" />
+            <End Role="Moves" EntitySet="Moves" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Moves_Games" Association="Self.FK_Moves_Games">
+            <End Role="Games" EntitySet="Games" />
+            <End Role="Moves" EntitySet="Moves" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Moves_ToPositions" Association="Self.FK_Moves_ToPositions">
+            <End Role="Positions" EntitySet="Positions" />
+            <End Role="Moves" EntitySet="Moves" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Squares_Positions" Association="Self.FK_Squares_Positions">
+            <End Role="Positions" EntitySet="Positions" />
+            <End Role="Squares" EntitySet="Squares" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema></edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="ChessModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityContainer Name="ChessEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="Games" EntityType="ChessModel.Game" />
+          <EntitySet Name="Moves" EntityType="ChessModel.Move" />
+          <EntitySet Name="Positions" EntityType="ChessModel.Position" />
+          <EntitySet Name="Squares" EntityType="ChessModel.Square" />
+          <AssociationSet Name="FK_Moves_Games" Association="ChessModel.FK_Moves_Games">
+            <End Role="Game" EntitySet="Games" />
+            <End Role="Move" EntitySet="Moves" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Moves_FromPositions" Association="ChessModel.FK_Moves_FromPositions">
+            <End Role="Position" EntitySet="Positions" />
+            <End Role="Move" EntitySet="Moves" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Moves_ToPositions" Association="ChessModel.FK_Moves_ToPositions">
+            <End Role="Position" EntitySet="Positions" />
+            <End Role="Move" EntitySet="Moves" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Squares_Positions" Association="ChessModel.FK_Squares_Positions">
+            <End Role="Position" EntitySet="Positions" />
+            <End Role="Square" EntitySet="Squares" />
+          </AssociationSet>
+        </EntityContainer>
+        <EntityType Name="Game">
+          <Key>
+            <PropertyRef Name="GameId" />
+          </Key>
+          <Property Name="GameId" Type="Int32" Nullable="false" a:SetterAccess="Public" xmlns:a="http://schemas.microsoft.com/ado/2006/04/codegeneration" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Year" Type="Int16" />
+          <Property Name="Date" Type="DateTime" Precision="0" />
+          <Property Name="Site" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="Round" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="WhiteName" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="BlackName" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="WhiteElo" Type="Int16" />
+          <Property Name="BlackElo" Type="Int16" />
+          <Property Name="Result" Type="Byte" Nullable="false" />
+          <Property Name="ResultReason" Type="Byte" Nullable="false" />
+          <Property Name="MoveCount" Type="Int16" Nullable="false" />
+          <Property Name="ECO" Type="String" MaxLength="3" FixedLength="true" Unicode="false" />
+          <NavigationProperty Name="Moves" Relationship="ChessModel.FK_Moves_Games" FromRole="Game" ToRole="Move" />
+          <Property Name="PGN" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Event" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="PgnHash" Type="String" Nullable="false" FixedLength="true" MaxLength="32" Unicode="false" />
+          <Property Name="GameHash" Type="String" Nullable="false" Unicode="false" MaxLength="32" FixedLength="true" />
+        </EntityType>
+        <EntityType Name="Move">
+          <Key>
+            <PropertyRef Name="GameId" />
+            <PropertyRef Name="PlyNumber" />
+          </Key>
+          <Property Name="GameId" Type="Int32" Nullable="false" />
+          <Property Name="FromPositionId" Type="Int32" Nullable="false" />
+          <Property Name="ToPositionId" Type="Int32" Nullable="false" />
+          <Property Name="FromFile" Type="Byte" Nullable="false" />
+          <Property Name="FromRank" Type="Byte" Nullable="false" />
+          <Property Name="ToRank" Type="Byte" Nullable="false" />
+          <NavigationProperty Name="Game" Relationship="ChessModel.FK_Moves_Games" FromRole="Move" ToRole="Game" />
+          <NavigationProperty Name="FromPosition" Relationship="ChessModel.FK_Moves_FromPositions" FromRole="Move" ToRole="Position" />
+          <NavigationProperty Name="ToPosition" Relationship="ChessModel.FK_Moves_ToPositions" FromRole="Move" ToRole="Position" />
+          <Property Name="PlyNumber" Type="Int16" Nullable="false" />
+          <Property Name="ToFile" Type="Byte" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Position">
+          <Key>
+            <PropertyRef Name="PositionId" />
+          </Key>
+          <Property Name="PositionId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="FEN" Type="String" Nullable="false" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="MoveNumber" Type="Int16" Nullable="false" />
+          <Property Name="WhiteToMove" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="MovesFromHere" Relationship="ChessModel.FK_Moves_FromPositions" FromRole="Position" ToRole="Move" />
+          <NavigationProperty Name="MovesToHere" Relationship="ChessModel.FK_Moves_ToPositions" FromRole="Position" ToRole="Move" />
+          <NavigationProperty Name="Squares" Relationship="ChessModel.FK_Squares_Positions" FromRole="Position" ToRole="Square" />
+          <Property Name="EnPassantFile" Type="Byte" />
+          <Property Name="CanWhiteCastleKingSide" Type="Boolean" Nullable="false" />
+          <Property Name="CanWhiteCastleQueenSide" Type="Boolean" Nullable="false" />
+          <Property Name="CanBlackCastleKingSide" Type="Boolean" Nullable="false" />
+          <Property Name="CanBlackCastleQueenSide" Type="Boolean" Nullable="false" />
+          <Property Name="PlysTo50" Type="Byte" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Square">
+          <Key>
+            <PropertyRef Name="PositionId" />
+            <PropertyRef Name="Rank" />
+            <PropertyRef Name="File" />
+          </Key>
+          <Property Name="PositionId" Type="Int32" Nullable="false" />
+          <Property Name="Rank" Type="Byte" Nullable="false" />
+          <Property Name="File" Type="Byte" Nullable="false" />
+          <Property Name="Captures" Type="Byte" Nullable="false" />
+          <NavigationProperty Name="Position" Relationship="ChessModel.FK_Squares_Positions" FromRole="Square" ToRole="Position" />
+          <Property Name="Piece" Type="Byte" Nullable="false" />
+          <Property Name="White" Type="Boolean" Nullable="false" />
+        </EntityType>
+        <Association Name="FK_Moves_Games">
+          <End Type="ChessModel.Game" Role="Game" Multiplicity="1" />
+          <End Type="ChessModel.Move" Role="Move" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Game">
+              <PropertyRef Name="GameId" />
+            </Principal>
+            <Dependent Role="Move">
+              <PropertyRef Name="GameId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Moves_FromPositions">
+          <End Type="ChessModel.Position" Role="Position" Multiplicity="1" />
+          <End Type="ChessModel.Move" Role="Move" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Position">
+              <PropertyRef Name="PositionId" />
+            </Principal>
+            <Dependent Role="Move">
+              <PropertyRef Name="FromPositionId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Moves_ToPositions">
+          <End Type="ChessModel.Position" Role="Position" Multiplicity="1" />
+          <End Type="ChessModel.Move" Role="Move" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Position">
+              <PropertyRef Name="PositionId" />
+            </Principal>
+            <Dependent Role="Move">
+              <PropertyRef Name="ToPositionId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Squares_Positions">
+          <End Type="ChessModel.Position" Role="Position" Multiplicity="1" />
+          <End Type="ChessModel.Square" Role="Square" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Position">
+              <PropertyRef Name="PositionId" />
+            </Principal>
+            <Dependent Role="Square">
+              <PropertyRef Name="PositionId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="ChessModelStoreContainer" CdmEntityContainer="ChessEntities">
+          <EntitySetMapping Name="Games">
+            <EntityTypeMapping TypeName="ChessModel.Game">
+              <MappingFragment StoreEntitySet="Games">
+                <ScalarProperty Name="GameHash" ColumnName="GameHash" />
+                <ScalarProperty Name="PgnHash" ColumnName="PgnHash" />
+                <ScalarProperty Name="Event" ColumnName="Event" />
+                <ScalarProperty Name="PGN" ColumnName="PGN" />
+                <ScalarProperty Name="ECO" ColumnName="ECO" />
+                <ScalarProperty Name="MoveCount" ColumnName="MoveCount" />
+                <ScalarProperty Name="ResultReason" ColumnName="ResultReason" />
+                <ScalarProperty Name="Result" ColumnName="Result" />
+                <ScalarProperty Name="BlackElo" ColumnName="BlackElo" />
+                <ScalarProperty Name="WhiteElo" ColumnName="WhiteElo" />
+                <ScalarProperty Name="BlackName" ColumnName="BlackName" />
+                <ScalarProperty Name="WhiteName" ColumnName="WhiteName" />
+                <ScalarProperty Name="Round" ColumnName="Round" />
+                <ScalarProperty Name="Site" ColumnName="Site" />
+                <ScalarProperty Name="Date" ColumnName="Date" />
+                <ScalarProperty Name="Year" ColumnName="Year" />
+                <ScalarProperty Name="GameId" ColumnName="GameId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Moves">
+            <EntityTypeMapping TypeName="ChessModel.Move">
+              <MappingFragment StoreEntitySet="Moves">
+                <ScalarProperty Name="ToFile" ColumnName="ToFile" />
+                <ScalarProperty Name="PlyNumber" ColumnName="PlyNumber" />
+                <ScalarProperty Name="ToRank" ColumnName="ToRank" />
+                <ScalarProperty Name="FromRank" ColumnName="FromRank" />
+                <ScalarProperty Name="FromFile" ColumnName="FromFile" />
+                <ScalarProperty Name="ToPositionId" ColumnName="ToPositionId" />
+                <ScalarProperty Name="FromPositionId" ColumnName="FromPositionId" />
+                <ScalarProperty Name="GameId" ColumnName="GameId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Positions">
+            <EntityTypeMapping TypeName="ChessModel.Position">
+              <MappingFragment StoreEntitySet="Positions">
+                <ScalarProperty Name="PlysTo50" ColumnName="PlysTo50" />
+                <ScalarProperty Name="CanBlackCastleQueenSide" ColumnName="CanBlackCastleQueenSide" />
+                <ScalarProperty Name="CanBlackCastleKingSide" ColumnName="CanBlackCastleKingSide" />
+                <ScalarProperty Name="CanWhiteCastleQueenSide" ColumnName="CanWhiteCastleQueenSide" />
+                <ScalarProperty Name="CanWhiteCastleKingSide" ColumnName="CanWhiteCastleKingSide" />
+                <ScalarProperty Name="EnPassantFile" ColumnName="EnPassantFile" />
+                <ScalarProperty Name="WhiteToMove" ColumnName="WhiteToMove" />
+                <ScalarProperty Name="MoveNumber" ColumnName="MoveNumber" />
+                <ScalarProperty Name="FEN" ColumnName="FEN" />
+                <ScalarProperty Name="PositionId" ColumnName="PositionId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Squares">
+            <EntityTypeMapping TypeName="ChessModel.Square">
+              <MappingFragment StoreEntitySet="Squares">
+                <ScalarProperty Name="White" ColumnName="White" />
+                <ScalarProperty Name="Piece" ColumnName="Piece" />
+                <ScalarProperty Name="Captures" ColumnName="Captures" />
+                <ScalarProperty Name="File" ColumnName="File" />
+                <ScalarProperty Name="Rank" ColumnName="Rank" />
+                <ScalarProperty Name="PositionId" ColumnName="PositionId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="True" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

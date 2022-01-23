@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ArrayOfEngineDefinition>
+	<EngineDefinition Type="Uci" ExecutablePath="E:\Stockfish\stockfish.exe">
+		<AnalysisSettings>
+			<Option Name="Skill Level" Value="20"/>
+			<Option Name="Threads" Value="4"/>
+			<Option Name="Hash" Value="1000"/>
+			<Option Name="MultiPV" Value="1"/>
+		</AnalysisSettings>
+		<GameSettings>
+			<Option Name="Skill Level" Value="1"/>
+			<Option Name="Threads" Value="2"/>
+			<Option Name="MultiPV" Value="1"/>
+		</GameSettings>
+	</EngineDefinition>
+</ArrayOfEngineDefinition>
