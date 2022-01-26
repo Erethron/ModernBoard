@@ -12,13 +12,11 @@ namespace DefensivePuzzleCreator
    {
       private const string PGN_PATH = @"E:\Downloads";
 		private const string StockFishExecutable = @"e:\Stockfish\stockfish.exe";
-		private const int MultiPV = 2;
-		private const int MSec = 1000;
-		private const int Threads = 8;
+		private const int Threads = 16;
 
 		static void Main()
       {
-			using var analyzer = new GameAnalyzer(StockFishExecutable, Threads);
+			using var analyzer = new GameAnalyzer(StockFishExecutable, Threads, "fencache.txt");
 
 			foreach (var game in GameReader.GetGamesFromDirectory(PGN_PATH))
 				foreach(var position in analyzer.Analyze(game, AnalyzePosition))
@@ -48,11 +46,18 @@ namespace DefensivePuzzleCreator
 		}
 		private static void EvaluatePosition(GameAnalyzer analyzer, GamePosition position)
 		{
-			var vals = analyzer.EvaluatePosition(position.Position, MultiPV, MSec);
+			var vals = analyzer.EvaluatePosition(position.Position, 2, 1000);
 			if (vals[0] < 0)
 				return;
 
-			if (vals.All(v => v > -300))
+			if (vals.All(v => v > -200))
+				return;
+
+			vals = analyzer.EvaluatePosition(position.Position, 2, 20000);
+			if (vals[0] < 0)
+				return;
+
+			if (vals.All(v => v > -200))
 				return;
 
 			Console.WriteLine(position.FEN);

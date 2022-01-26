@@ -2,6 +2,7 @@
 using Chess.EngineWrappers;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace PuzzleHelper
@@ -10,6 +11,8 @@ namespace PuzzleHelper
 	{
 		private UciEngineWrapper _stockFish;
 		private readonly string[][] _multiData = new string[20][];
+		private readonly string _cacheFile;
+		private Dictionary<string, int> _fenCache;
 
 		public static IReadOnlyDictionary<Piece, int> PieceValues { get; } = new Dictionary<Piece, int>
 		{
@@ -22,7 +25,7 @@ namespace PuzzleHelper
 		};
 
 
-		public GameAnalyzer(string pathToUciEngineExecutable, int engineThreads = 4)
+		public GameAnalyzer(string pathToUciEngineExecutable, int engineThreads = 4, string cacheFile = null)
 		{
 			if (string.IsNullOrWhiteSpace(pathToUciEngineExecutable))
 				throw new ArgumentException($"'{nameof(pathToUciEngineExecutable)}' cannot be null or whitespace.", nameof(pathToUciEngineExecutable));
@@ -30,11 +33,33 @@ namespace PuzzleHelper
 			if (engineThreads < 1)
 				throw new ArgumentOutOfRangeException(nameof(engineThreads), "Engine thread count must be greater then zero.");
 
+			_cacheFile = cacheFile;
+			if (File.Exists(cacheFile))
+				ReadCache();
+			else
+				_fenCache = new Dictionary<string, int>();
+
 			_stockFish = new UciEngineWrapper(pathToUciEngineExecutable);
 			_stockFish.SetEngineOption("Skill Level", "20");
 			_stockFish.SetEngineOption("Threads", engineThreads.ToString());
 			_stockFish.SetEngineOption("Hash", "1000");
 			_stockFish.EngineOutput += StockFish_EngineOutput;
+		}
+
+		private void ReadCache()
+		{
+			_fenCache = File.ReadAllLines(_cacheFile)
+								.Select(l => l.Split(';'))
+								.ToDictionary(s => s[0], s => Convert.ToInt32(s[1]));
+		}
+
+		private void WriteCache()
+		{
+			if (!string.IsNullOrEmpty(_cacheFile))
+				File.WriteAllLines(_cacheFile,
+										_fenCache.OrderByDescending(kvp => kvp.Value)
+													.Take(1000000)
+													.Select(kvp => $"{kvp.Key};{kvp.Value}"));
 		}
 
 		private void StockFish_EngineOutput(object sender, System.Diagnostics.DataReceivedEventArgs e)
@@ -70,14 +95,24 @@ namespace PuzzleHelper
 
 			while (true)
 			{
-				if (preFilter(position))
+				var fen = position.FEN;
+				if (_fenCache.ContainsKey(fen))
+				{
+					_fenCache[fen]++;
+				}
+				else if (preFilter(position))
+				{
+					_fenCache.Add(fen, 1);
 					yield return position;
+				}
 
 				if (position.NextMove == null)
 					break;
 
 				position = position.NextMove.NextPosition;
 			}
+
+			WriteCache();
 		}
 
 		public List<int> EvaluatePosition(Position position, int multiPv, int msec)
@@ -94,9 +129,6 @@ namespace PuzzleHelper
 			_stockFish.SetEngineOption("MultiPV", multiPv.ToString());
 			_stockFish.SetPosition(position.FEN);
 			var bestMove = _stockFish.GetBestMove(msec, false);
-			if (_multiData.Take(multiPv).Any(s => s.Contains("score") && !s.Contains("cp")))
-				throw new ApplicationException("Engine Error"); 
-
 			return GetMultiPvValues(multiPv);
 		}
 
@@ -112,6 +144,12 @@ namespace PuzzleHelper
 					if (_multiData[pv][i] == "cp")
 					{
 						int score = Convert.ToInt32(_multiData[pv][i + 1]) - 1;
+						vals.Add(score);
+						break;
+					}
+					else if (_multiData[pv][i] == "mate")
+					{
+						int score = 10000 - Convert.ToInt32(_multiData[pv][i + 1]);
 						vals.Add(score);
 						break;
 					}
