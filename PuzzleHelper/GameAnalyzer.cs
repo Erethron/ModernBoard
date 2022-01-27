@@ -115,7 +115,7 @@ namespace PuzzleHelper
 			WriteCache();
 		}
 
-		public List<int> EvaluatePosition(Position position, int multiPv, int msec)
+		public EvaluationResult EvaluatePosition(Position position, int multiPv, int msec)
 		{
 			if (position is null)
 				throw new ArgumentNullException(nameof(position));
@@ -129,7 +129,12 @@ namespace PuzzleHelper
 			_stockFish.SetEngineOption("MultiPV", multiPv.ToString());
 			_stockFish.SetPosition(position.FEN);
 			var bestMove = _stockFish.GetBestMove(msec, false);
-			return GetMultiPvValues(multiPv);
+
+			return new EvaluationResult
+			{
+				Move = bestMove,
+				PV = GetMultiPvValues(multiPv)
+			};
 		}
 
 

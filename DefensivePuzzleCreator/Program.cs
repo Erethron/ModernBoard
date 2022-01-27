@@ -13,6 +13,9 @@ namespace DefensivePuzzleCreator
       private const string PGN_PATH = @"E:\Downloads";
 		private const string StockFishExecutable = @"e:\Stockfish\stockfish.exe";
 		private const int Threads = 16;
+		private const int THINK_TIME_LONG = 20000;
+		private const int THINK_TIME_SHORT = 1000;
+		private const int EVAL_TRESHOLD = 200;
 
 		static void Main()
       {
@@ -44,23 +47,41 @@ namespace DefensivePuzzleCreator
 
 			return true;
 		}
-		private static void EvaluatePosition(GameAnalyzer analyzer, GamePosition position)
+		private static void EvaluatePosition(GameAnalyzer analyzer, GamePosition gamePosition)
 		{
-			var vals = analyzer.EvaluatePosition(position.Position, 2, 1000);
-			if (vals[0] < 0)
+			EvaluationResult eval = analyzer.EvaluatePosition(gamePosition.Position, 2, THINK_TIME_SHORT);
+			if (eval.PV[0] < 0)
 				return;
 
-			if (vals.All(v => v > -200))
+			if (eval.PV.All(v => v > -EVAL_TRESHOLD))
 				return;
 
-			vals = analyzer.EvaluatePosition(position.Position, 2, 20000);
-			if (vals[0] < 0)
+			eval = analyzer.EvaluatePosition(gamePosition.Position, 2, THINK_TIME_LONG);
+			if (eval.PV[0] < 0)
 				return;
 
-			if (vals.All(v => v > -200))
+			if (eval.PV.All(v => v > -EVAL_TRESHOLD))
 				return;
 
-			Console.WriteLine(position.FEN);
+			Console.Write($"{gamePosition.FEN};{eval.Move.ToLAN()}");
+
+			var position = gamePosition.Position;
+			while (true)
+			{
+				//OPponent move - does not need to be forcing
+				position = position.ApplyMove(eval.Move);
+				eval = analyzer.EvaluatePosition(position, 2, THINK_TIME_LONG);
+				Console.Write($",{eval.Move.ToLAN()}");
+
+				//Is our next move forcing?
+				position = position.ApplyMove(eval.Move);
+				eval = analyzer.EvaluatePosition(position, 2, THINK_TIME_LONG);
+				if (eval.PV.All(v => v > -EVAL_TRESHOLD))
+					break;
+				Console.Write($",{eval.Move.ToLAN()}");
+			}
+
+			Console.WriteLine();
 		}
 
 
