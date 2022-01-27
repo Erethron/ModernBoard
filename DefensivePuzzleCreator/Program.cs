@@ -12,13 +12,14 @@ namespace DefensivePuzzleCreator
    {
       private const string PGN_PATH = @"E:\Downloads";
 		private const string StockFishExecutable = @"e:\Stockfish\stockfish.exe";
-		private const int MultiPV = 2;
-		private const int MSec = 1000;
-		private const int Threads = 8;
+		private const int Threads = 16;
+		private const int THINK_TIME_LONG = 20000;
+		private const int THINK_TIME_SHORT = 1000;
+		private const int EVAL_TRESHOLD = 200;
 
 		static void Main()
       {
-			using var analyzer = new GameAnalyzer(StockFishExecutable, Threads);
+			using var analyzer = new GameAnalyzer(StockFishExecutable, Threads, "fencache.txt");
 
 			foreach (var game in GameReader.GetGamesFromDirectory(PGN_PATH))
 				foreach(var position in analyzer.Analyze(game, AnalyzePosition))
@@ -46,16 +47,41 @@ namespace DefensivePuzzleCreator
 
 			return true;
 		}
-		private static void EvaluatePosition(GameAnalyzer analyzer, GamePosition position)
+		private static void EvaluatePosition(GameAnalyzer analyzer, GamePosition gamePosition)
 		{
-			var vals = analyzer.EvaluatePosition(position.Position, MultiPV, MSec);
-			if (vals[0] < 0)
+			EvaluationResult eval = analyzer.EvaluatePosition(gamePosition.Position, 2, THINK_TIME_SHORT);
+			if (eval.PV[0] < 0)
 				return;
 
-			if (vals.All(v => v > -300))
+			if (eval.PV.All(v => v > -EVAL_TRESHOLD))
 				return;
 
-			Console.WriteLine(position.FEN);
+			eval = analyzer.EvaluatePosition(gamePosition.Position, 2, THINK_TIME_LONG);
+			if (eval.PV[0] < 0)
+				return;
+
+			if (eval.PV.All(v => v > -EVAL_TRESHOLD))
+				return;
+
+			Console.Write($"{gamePosition.FEN};{eval.Move.ToLAN()}");
+
+			var position = gamePosition.Position;
+			while (true)
+			{
+				//OPponent move - does not need to be forcing
+				position = position.ApplyMove(eval.Move);
+				eval = analyzer.EvaluatePosition(position, 2, THINK_TIME_LONG);
+				Console.Write($",{eval.Move.ToLAN()}");
+
+				//Is our next move forcing?
+				position = position.ApplyMove(eval.Move);
+				eval = analyzer.EvaluatePosition(position, 2, THINK_TIME_LONG);
+				if (eval.PV.All(v => v > -EVAL_TRESHOLD))
+					break;
+				Console.Write($",{eval.Move.ToLAN()}");
+			}
+
+			Console.WriteLine();
 		}
 
 
