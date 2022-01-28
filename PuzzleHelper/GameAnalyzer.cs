@@ -148,14 +148,14 @@ namespace PuzzleHelper
 				{
 					if (_multiData[pv][i] == "cp")
 					{
-						int score = Convert.ToInt32(_multiData[pv][i + 1]) - 1;
+						int score = Convert.ToInt32(_multiData[pv][i + 1]);
 						vals.Add(score);
 						break;
 					}
 					else if (_multiData[pv][i] == "mate")
 					{
-						int score = 10000 - Convert.ToInt32(_multiData[pv][i + 1]);
-						vals.Add(score);
+						int score = Convert.ToInt32(_multiData[pv][i + 1]);
+						vals.Add(Math.Sign(score) * 10000 - score);
 						break;
 					}
 				}
