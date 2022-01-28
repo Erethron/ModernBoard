@@ -68,9 +68,15 @@ namespace DefensivePuzzleCreator
 			var position = gamePosition.Position;
 			while (true)
 			{
-				//OPponent move - does not need to be forcing
+				//Opponent move - does not need to be forcing
 				position = position.ApplyMove(eval.Move);
 				eval = analyzer.EvaluatePosition(position, 2, THINK_TIME_LONG);
+				if (eval.Move == null)
+				{
+					Console.WriteLine(",#");
+					return;
+				}
+
 				Console.Write($",{eval.Move.ToLAN()}");
 
 				//Is our next move forcing?

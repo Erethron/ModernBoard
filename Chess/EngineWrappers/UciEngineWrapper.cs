@@ -59,6 +59,8 @@ namespace Chess.EngineWrappers
 		{
 			string line = WaitForCommand("bestmove");
 			var pars = line.Split(' ');
+			if (pars[1] == "(none)")
+				return null;
 			return Move.FromLAN(pars[1]);
 		}
 
