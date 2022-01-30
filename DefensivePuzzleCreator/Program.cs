@@ -1,6 +1,7 @@
 ﻿using Chess;
 using PuzzleHelper;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -10,7 +11,7 @@ namespace DefensivePuzzleCreator
 {
    class Program
    {
-      private const string PGN_PATH = @"E:\Downloads";
+      private const string PGN_PATH = @"E:\tmp";
 		private const string StockFishExecutable = @"e:\Stockfish\stockfish.exe";
 		private const int Threads = 16;
 		private const int THINK_TIME_LONG = 20000;
@@ -65,6 +66,8 @@ namespace DefensivePuzzleCreator
 
 			Console.Write($"{gamePosition.FEN};{eval.Move.ToLAN()}");
 
+			var history = new HashSet<string>{ gamePosition.FEN };
+
 			var position = gamePosition.Position;
 			while (true)
 			{
@@ -73,17 +76,22 @@ namespace DefensivePuzzleCreator
 				eval = analyzer.EvaluatePosition(position, 2, THINK_TIME_LONG);
 				if (eval.Move == null)
 				{
-					Console.WriteLine(",#");
-					return;
+					Console.Write(",#");
+					break;
 				}
 
 				Console.Write($",{eval.Move.ToLAN()}");
+
+				if (history.Contains(position.FEN))
+					break;
+				history.Add(position.FEN);
 
 				//Is our next move forcing?
 				position = position.ApplyMove(eval.Move);
 				eval = analyzer.EvaluatePosition(position, 2, THINK_TIME_LONG);
 				if (eval.PV.All(v => v > -EVAL_TRESHOLD))
 					break;
+
 				Console.Write($",{eval.Move.ToLAN()}");
 			}
 
