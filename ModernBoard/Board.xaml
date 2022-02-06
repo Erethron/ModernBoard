@@ -27,9 +27,14 @@
 
 			<Border Margin="5" BorderThickness="1" BorderBrush="DodgerBlue">
 				<Canvas>
+					<!--<Border Panel.ZIndex="1" BorderBrush="DarkRed" BorderThickness="3"
+									 Canvas.Left="{Binding DragImageX}" Canvas.Top="{Binding DragImageY}" 
+									 Width="{Binding DragImageSize}" Height="{Binding DragImageSize}"
+									 Visibility="{Binding IsDragging, Converter={StaticResource VisConv}}"/>-->
 					<Image Panel.ZIndex="1" 
 									 Canvas.Left="{Binding DragImageX}" Canvas.Top="{Binding DragImageY}" 
 									 Width="{Binding DragImageSize}" Height="{Binding DragImageSize}"
+									 Visibility="{Binding IsDragging, Converter={StaticResource VisConv}}"
 									 Source="{Binding DragPiece, Converter={StaticResource ImageSourceConverter}}"/>
 					<Grid Canvas.Top="0" Canvas.Left="0" 
 									Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=Canvas}}"
@@ -202,14 +207,6 @@
 										  Visibility="{Binding State, Converter={StaticResource StateConverter}}"
 										  Background="White">
 							<StackPanel Margin="20" Orientation="Vertical">
-								<!--<TextBlock HorizontalAlignment="Center" Margin="10" FontSize="30" TextWrapping="Wrap" FontWeight="UltraBold">
-											<TextBlock.Text>
-												<MultiBinding Converter="{StaticResource StateTextConv}">
-													<Binding Path="State" />
-													<Binding Path="StateReason" />
-												</MultiBinding>
-											</TextBlock.Text>
-										</TextBlock>-->
 								<TextBlock HorizontalAlignment="Center" Margin="20,10,20,0" FontSize="30" FontWeight="UltraBold" Text="{Binding State, Converter={StaticResource StateToText}}"/>
 								<TextBlock HorizontalAlignment="Center" Margin="20,0,20,10" FontSize="30" FontWeight="UltraBold" Text="{Binding StateReason, Converter={StaticResource ReasonToText}}"/>
 							</StackPanel>

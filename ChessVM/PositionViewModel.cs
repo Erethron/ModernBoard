@@ -55,7 +55,7 @@ namespace ChessVM
 		public Side SideToPlay => Position.Position.SideToPlay;
 		public int MoveNumber => Position.MoveNumber;
 		public GameMove LastMove { get; }
-
+		public bool IsDragging => DragPiece != null;
 		public GamePosition Position { get; }
 		public MoveViewModel NextMove => Position.NextMove == null ? null : new MoveViewModel(Position.NextMove, IsBoardFlipped);
 
@@ -125,9 +125,9 @@ namespace ChessVM
 
 		public void AbortPieceDrag()
 		{
+			DragPiece = null;
 			BeginDragFrom = null;
 			CanPromote = false;
-			DragPiece = null;
 			DragAbort?.Invoke(this, EventArgs.Empty);
 		}
 

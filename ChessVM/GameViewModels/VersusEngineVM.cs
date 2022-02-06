@@ -79,16 +79,20 @@ namespace ChessVM.GameViewModels
 		{
 			DisplayPosition.DragStart -= DisplayPosition_DragStart;
 			DisplayPosition.DragComplete -= CurrentPosition_DragComplete;
-			if (DisplayPosition != position && DisplayPosition.DragPiece != null)
-				DisplayPosition.DragPiece = null;
-			else
-			{
-			}
+			DisplayPosition.DragAbort -= CurrentPosition_DragAbort;
 			position.State = State;
 			position.StateReason = StateReason;
+			position.DragImageX = DisplayPosition.DragImageX;
+			position.DragImageY = DisplayPosition.DragImageY;
 			DisplayPosition = position;
 			DisplayPosition.DragComplete += CurrentPosition_DragComplete;
 			DisplayPosition.DragStart += DisplayPosition_DragStart;
+			DisplayPosition.DragAbort += CurrentPosition_DragAbort;
+		}
+
+		private void CurrentPosition_DragAbort(object sender, EventArgs e)
+		{
+			SetDisplayPosition(CurrentPosition);
 		}
 
 		protected override void OnEngineMove()

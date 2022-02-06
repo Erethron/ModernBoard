@@ -26,7 +26,10 @@ namespace ChessVM.GameViewModels
 			_game = game ?? throw new ArgumentNullException(nameof(game));
 			StartPosition = new PositionViewModel(_game.StartPosition, IsBoardFlipped);
 			CurrentPosition = StartPosition;
+			CurrentPosition.State = State;
+			CurrentPosition.StateReason = StateReason;
 			DisplayPosition = CurrentPosition;
+
 			InitializeChessEngine();
 			AnalyzeCommand = new RelayCommand(() => { AnalyzeAsync(); });
 		}
