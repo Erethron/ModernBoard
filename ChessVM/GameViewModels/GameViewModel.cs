@@ -18,10 +18,13 @@ namespace ChessVM.GameViewModels
 
 	public abstract class GameViewModel : ViewModelBase, IDisposable
 	{
+		public bool IsBoardFlipped { get; private set; }
+
+
 		protected GameViewModel(Game game)
 		{
 			_game = game ?? throw new ArgumentNullException(nameof(game));
-			StartPosition = new PositionViewModel(_game.StartPosition);
+			StartPosition = new PositionViewModel(_game.StartPosition, IsBoardFlipped);
 			CurrentPosition = StartPosition;
 			DisplayPosition = CurrentPosition;
 			InitializeChessEngine();
@@ -54,36 +57,23 @@ namespace ChessVM.GameViewModels
 			set => _game.Site = value;
 		}
 
-		public bool IsBoardFlipped { get; private set; }
-
-		private static readonly string[] RegularFileLabels = { "a", "b", "c", "d", "e", "f", "g", "h" };
-		private static readonly string[] FlippedFileLabels = { "h", "g", "f", "e", "d", "c", "b", "a" };
-		public string[] FileLabels => IsBoardFlipped ? FlippedFileLabels : RegularFileLabels;
-
-		private static readonly string[] RegularRankLabels = { "1", "2", "3", "4", "5", "6", "7", "8" };
-		private static readonly string[] FlippedRankLabels = { "8", "7", "6", "5", "4", "3", "2", "1" };
-		public string[] RankLabels => IsBoardFlipped ? FlippedRankLabels : RegularRankLabels;
 
 		public PositionViewModel StartPosition { get; }
 		public PositionViewModel CurrentPosition { get; private set; }
 		public PositionViewModel DisplayPosition { get; set; }
 
-		public double DragImageSize { get; set; }
-		public double DragImageX { get; set; }
-		public double DragImageY { get; set; }
+			public IEngineWrapper Engine { get; private set; }
 
-		public IEngineWrapper Engine { get; private set; }
-
-		private readonly ObservableCollection<string> _engineOutput = new ObservableCollection<string>();
+		private readonly ObservableCollection<string> _engineOutput = new();
 		public ReadOnlyObservableCollection<string> EngineOutput { get; private set; }
 
-		private readonly ObservableCollection<string> _engineLines = new ObservableCollection<string>();
+		private readonly ObservableCollection<string> _engineLines = new();
 		public ReadOnlyObservableCollection<string> EngineLines { get; private set; }
 
 		private string[] _engineMoves;
-		private readonly Random _rand = new Random();
+		private readonly Random _rand = new();
 
-		public RelayCommand FlipBoardCommand => new RelayCommand(FlipBoard);
+		public RelayCommand FlipBoardCommand => new(FlipBoard);
 
 		public GameState State => _game.State;
 		public GameStateReason StateReason => _game.StateReason;
@@ -98,16 +88,11 @@ namespace ChessVM.GameViewModels
 				var engines = (List<EngineDefinition>)serializer.Deserialize(strm);
 				var definition = engines.First();
 
-				switch (definition.Type)
+				Engine = definition.Type switch
 				{
-					case EngineType.Uci:
-						Engine = new UciEngineWrapper(definition.ExecutablePath);
-						break;
-
-					default:
-						throw new ApplicationException($"Invalid engine type {definition.Type}");
-				}
-
+					EngineType.Uci => new UciEngineWrapper(definition.ExecutablePath),
+					_ => throw new ApplicationException($"Invalid engine type {definition.Type}"),
+				};
 				SetEngineOptions(definition);
 			}
 
@@ -173,7 +158,7 @@ namespace ChessVM.GameViewModels
 		{
 			if (move == null) throw new ArgumentNullException(nameof(move));
 			_game.ApplyMove(move.Move);
-			CurrentPosition = new PositionViewModel(_game.CurrentPosition, move.Move);
+			CurrentPosition = new PositionViewModel(_game.CurrentPosition, IsBoardFlipped, move.Move);
 			OnPropertyChanged(nameof(State));
 			OnPropertyChanged(nameof(StateReason));
 			OnPropertyChanged(nameof(PGN));
@@ -190,7 +175,7 @@ namespace ChessVM.GameViewModels
 					var move = CurrentPosition.Position.GetGameMove(Engine.GetBestMove(moveTime));
 					if (accuracy > 0)
 						move = GetRandomEngineMove(accuracy) ?? move;
-					if (ApplyMove(new MoveViewModel(move)))
+					if (ApplyMove(new MoveViewModel(move, IsBoardFlipped)))
 						RaiseEngineMove();
 				});
 		}
@@ -206,8 +191,8 @@ namespace ChessVM.GameViewModels
 						{
 							Score = Convert.ToInt32(li.Substring(li.IndexOf("score cp") + 9, li.IndexOf(" ", li.IndexOf("score cp") + 10) - li.IndexOf("score cp") - 9)),
 							Depth = Convert.ToInt32(li.Substring(li.IndexOf(" depth ") + 7, li.IndexOf(" ", li.IndexOf(" depth ") + 8) - li.IndexOf(" depth ") - 7)),
-							Line = li.Substring(li.IndexOf(" pv ") + 4).Split(' '),
-							Description = li.Substring(li.IndexOf(" pv ") + 4)
+							Line = li[(li.IndexOf(" pv ") + 4)..].Split(' '),
+							Description = li[(li.IndexOf(" pv ") + 4)..]
 						})
 						.OrderByDescending(s => s.Score)
 						.ToList();
@@ -221,11 +206,16 @@ namespace ChessVM.GameViewModels
 			return CurrentPosition.Position.GetGameMove(lan);
 		}
 
-		public void FlipBoard() => IsBoardFlipped = !IsBoardFlipped;
+		public void FlipBoard()
+		{
+			IsBoardFlipped = !IsBoardFlipped;
+			DisplayPosition.IsBoardFlipped = IsBoardFlipped;
+		}
 
 		public void Dispose()
 		{
 			Engine?.Dispose();
+			GC.SuppressFinalize(this);
 		}
 
 		public string PGN => _game.GetPGN();
@@ -236,7 +226,7 @@ namespace ChessVM.GameViewModels
 		private const string BLACK_REPERTOIRE_PGN = @"Repertoire\black.pgn";
 
 		private static Dictionary<string, Move> _repertoire;
-		protected static IReadOnlyDictionary<string, Move> Repertoire => _repertoire ?? (_repertoire = LoadRepertoire());
+		protected static IReadOnlyDictionary<string, Move> Repertoire => _repertoire ??= LoadRepertoire();
 
 		private static Dictionary<string, Move> LoadRepertoire()
 		{
@@ -400,10 +390,10 @@ namespace ChessVM.GameViewModels
 
 			int cps = line.IndexOf($" {key} ", StringComparison.Ordinal) + key.Length + 2;
 			int cpe = line.IndexOf(" ", cps, StringComparison.Ordinal);
-			return line.Substring(cps, cpe - cps);
+			return line[cps..cpe];
 		}
 
-		public RelayCommand CopyPgnToClipBoardCommand => new RelayCommand(CopyPgnToClipBoard);
+		public RelayCommand CopyPgnToClipBoardCommand => new(CopyPgnToClipBoard);
 		public void CopyPgnToClipBoard()
 		{
 			ClipboardService.SetText(PGN);

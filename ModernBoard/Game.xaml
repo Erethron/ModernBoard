@@ -8,232 +8,30 @@
                     xmlns:local="clr-namespace:ModernBoard"
                     xmlns:gvm="clr-namespace:ChessVM.GameViewModels;assembly=ChessVM">
 
-	<local:SquareBackConverter x:Key="BackConverter"/>
-	<local:RowConverter x:Key="RowConverter"/>
-	<local:ColConverter x:Key="ColConverter"/>
-	<local:ImageSourceConverter x:Key="ImageSourceConverter"/>
-	<local:GameToVisibilityConverter x:Key="StateConverter"/>
-	<local:BoolToVisibility x:Key="VisConv" />
-	<local:PromotionRowConverter x:Key="PromRowConverter"/>
-	<local:PromotionColConverter x:Key="PromColConverter"/>
-
 	<DataTemplate x:Key="GameHeader"  DataType="gvm:GameViewModel">
 		<TextBlock Text="{Binding Event}"/>
-	</DataTemplate>
-
-	<DataTemplate x:Key="PiecePos" DataType="vm:PieceViewModel">
-		<Border Background="{Binding ., Converter={StaticResource BackConverter}}">
-			<Image Name="Field"  
-					 SizeChanged="Field_SizeChanged" MouseDown="Field_MouseDown" 
-					 Stretch="Uniform" Source="{Binding Occupation, Converter={StaticResource ImageSourceConverter}}"/>
-		</Border>
 	</DataTemplate>
 
 	<DataTemplate x:Key="GameFull"  DataType="gvm:GameViewModel">
 
 		<Grid>
+
+			<Grid.Resources>
+				<ResourceDictionary>
+					<ResourceDictionary.MergedDictionaries>
+						<ResourceDictionary Source="Board.xaml"/>
+					</ResourceDictionary.MergedDictionaries>
+				</ResourceDictionary>
+			</Grid.Resources>
+
 			<Grid.ColumnDefinitions>
 				<ColumnDefinition Width="Auto"/>
 				<ColumnDefinition Width="*"/>
 			</Grid.ColumnDefinitions>
 
-			<Border Margin="5" CornerRadius="4" BorderThickness="2" BorderBrush="DarkGray" 
-					  SizeChanged="BoardContainer_SizeChanged" MouseMove="BoardContainer_MouseMove" MouseUp="BoardContainer_MouseUp" MouseLeave="BoardContainer_MouseLeave">
-
-				<Border Margin="5" BorderThickness="1" BorderBrush="DodgerBlue">
-					<Canvas>
-						<Image Panel.ZIndex="1" 
-								 Canvas.Left="{Binding DragImageX}" Canvas.Top="{Binding DragImageY}" 
-								 Width="{Binding DragImageSize}" Height="{Binding DragImageSize}"
-								 Source="{Binding DragPiece, Converter={StaticResource ImageSourceConverter}}"/>
-						<Grid Canvas.Top="0" Canvas.Left="0" 
-								Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=Canvas}}"
-								Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Canvas}}">
-							<Grid.RowDefinitions>
-								<RowDefinition Height="*"/>
-								<RowDefinition Height="*"/>
-								<RowDefinition Height="*"/>
-								<RowDefinition Height="*"/>
-								<RowDefinition Height="*"/>
-								<RowDefinition Height="*"/>
-								<RowDefinition Height="*"/>
-								<RowDefinition Height="*"/>
-								<RowDefinition Height="25"/>
-							</Grid.RowDefinitions>
-							<Grid.ColumnDefinitions>
-								<ColumnDefinition Width="25"/>
-								<ColumnDefinition Width="*"/>
-								<ColumnDefinition Width="*"/>
-								<ColumnDefinition Width="*"/>
-								<ColumnDefinition Width="*"/>
-								<ColumnDefinition Width="*"/>
-								<ColumnDefinition Width="*"/>
-								<ColumnDefinition Width="*"/>
-								<ColumnDefinition Width="*"/>
-							</Grid.ColumnDefinitions>
-
-							<Grid.Resources>
-								<Style TargetType="Label">
-									<Setter Property="FontWeight" Value="Bold"/>
-									<Setter Property="FontSize" Value="16"/>
-									<Setter Property="FontFamily" Value="Arial"/>
-									<Setter Property="HorizontalAlignment" Value="Stretch"/>
-									<Setter Property="VerticalAlignment" Value="Stretch"/>
-									<Setter Property="HorizontalContentAlignment" Value="Center"/>
-									<Setter Property="VerticalContentAlignment" Value="Center"/>
-									<Setter Property="BorderBrush" Value="DodgerBlue"/>
-									<Setter Property="Padding" Value="0"/>
-									<Setter Property="Foreground" Value="DarkGray"/>
-								</Style>
-
-								<local:ReasonToTextconverter x:Key="ReasonToText"/>
-								<local:StateToTextconverter x:Key="StateToText"/>
-
-							</Grid.Resources>
-
-							<Label Content="{Binding FileLabels[0]}" Grid.Row="8" Grid.Column="1" BorderThickness="0,1,0,0"/>
-							<Label Content="{Binding FileLabels[1]}" Grid.Row="8" Grid.Column="2" BorderThickness="0,1,0,0"/>
-							<Label Content="{Binding FileLabels[2]}" Grid.Row="8" Grid.Column="3" BorderThickness="0,1,0,0"/>
-							<Label Content="{Binding FileLabels[3]}" Grid.Row="8" Grid.Column="4" BorderThickness="0,1,0,0"/>
-							<Label Content="{Binding FileLabels[4]}" Grid.Row="8" Grid.Column="5" BorderThickness="0,1,0,0"/>
-							<Label Content="{Binding FileLabels[5]}" Grid.Row="8" Grid.Column="6" BorderThickness="0,1,0,0"/>
-							<Label Content="{Binding FileLabels[6]}" Grid.Row="8" Grid.Column="7" BorderThickness="0,1,0,0"/>
-							<Label Content="{Binding FileLabels[7]}" Grid.Row="8" Grid.Column="8" BorderThickness="0,1,0,0"/>
-
-							<Label Content="{Binding RankLabels[0]}" Grid.Row="7" Grid.Column="0" BorderThickness="0,0,1,0"/>
-							<Label Content="{Binding RankLabels[1]}" Grid.Row="6" Grid.Column="0" BorderThickness="0,0,1,0"/>
-							<Label Content="{Binding RankLabels[2]}" Grid.Row="5" Grid.Column="0" BorderThickness="0,0,1,0"/>
-							<Label Content="{Binding RankLabels[3]}" Grid.Row="4" Grid.Column="0" BorderThickness="0,0,1,0"/>
-							<Label Content="{Binding RankLabels[4]}" Grid.Row="3" Grid.Column="0" BorderThickness="0,0,1,0"/>
-							<Label Content="{Binding RankLabels[5]}" Grid.Row="2" Grid.Column="0" BorderThickness="0,0,1,0"/>
-							<Label Content="{Binding RankLabels[6]}" Grid.Row="1" Grid.Column="0" BorderThickness="0,0,1,0"/>
-							<Label Content="{Binding RankLabels[7]}" Grid.Row="0" Grid.Column="0" BorderThickness="0,0,1,0"/>
-
-							<ItemsControl Name="BoardContainer" 
-										  Loaded="BoardContainer_OnLoaded"
-										  DataContextChanged="BoardContainer_OnDataContextChanged"
-										  Grid.Row="0" Grid.Column="1" Grid.RowSpan="8" Grid.ColumnSpan="8"
-										  ItemsSource="{Binding DisplayPosition.Pieces}" 
-										  ItemTemplate="{StaticResource PiecePos}">
-								<ItemsControl.ItemContainerStyle>
-									<Style>
-										<Setter Property="Grid.Row">
-											<Setter.Value>
-												<MultiBinding Converter="{StaticResource RowConverter}">
-													<Binding Path="Coordinate"/>
-													<Binding Path="DataContext.IsBoardFlipped" RelativeSource="{RelativeSource AncestorType= ItemsControl}"/>
-												</MultiBinding>
-											</Setter.Value>
-										</Setter>
-										<Setter Property="Grid.Column">
-											<Setter.Value>
-												<MultiBinding Converter="{StaticResource ColConverter}">
-													<Binding Path="Coordinate"/>
-													<Binding Path="DataContext.IsBoardFlipped" RelativeSource="{RelativeSource AncestorType= ItemsControl}"/>
-												</MultiBinding>
-											</Setter.Value>
-										</Setter>
-									</Style>
-								</ItemsControl.ItemContainerStyle>
-								<ItemsControl.ItemsPanel>
-									<ItemsPanelTemplate>
-										<Grid Loaded="InnerGrid_Loaded">
-											<Grid.ColumnDefinitions>
-												<ColumnDefinition Width="*"/>
-												<ColumnDefinition Width="*"/>
-												<ColumnDefinition Width="*"/>
-												<ColumnDefinition Width="*"/>
-												<ColumnDefinition Width="*"/>
-												<ColumnDefinition Width="*"/>
-												<ColumnDefinition Width="*"/>
-												<ColumnDefinition Width="*"/>
-											</Grid.ColumnDefinitions>
-											<Grid.RowDefinitions>
-												<RowDefinition Height="*"/>
-												<RowDefinition Height="*"/>
-												<RowDefinition Height="*"/>
-												<RowDefinition Height="*"/>
-												<RowDefinition Height="*"/>
-												<RowDefinition Height="*"/>
-												<RowDefinition Height="*"/>
-												<RowDefinition Height="*"/>
-											</Grid.RowDefinitions>
-										</Grid>
-									</ItemsPanelTemplate>
-								</ItemsControl.ItemsPanel>
-							</ItemsControl>
-
-							<Border Name="PromotionGUI" Grid.RowSpan="4"
-							        Visibility="{Binding CanPromote, Converter={StaticResource VisConv}}"
-									  Margin="-4,-4,-4,-6" CornerRadius="5" Background="White" BorderBrush="DarkGray" BorderThickness="2">
-
-								<Grid.Column>
-									<MultiBinding Converter="{StaticResource PromColConverter}">
-										<Binding Path="PromotionSquare"/>
-										<Binding Path="IsBoardFlipped"/>
-									</MultiBinding>
-								</Grid.Column>
-
-								<Grid.Row>
-									<MultiBinding Converter="{StaticResource PromRowConverter}">
-										<Binding Path="PromotionSquare"/>
-										<Binding Path="IsBoardFlipped"/>
-									</MultiBinding>
-								</Grid.Row>
-
-								<ListBox BorderThickness="0" ItemsSource="{Binding PromotionOptions}" HorizontalContentAlignment="Stretch" 
-											Margin="2"
-											SelectionChanged="PromotionGui_SelectionChanged"
-								         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-								         ScrollViewer.VerticalScrollBarVisibility="Hidden">
-									<ItemsControl.ItemsPanel>
-										<ItemsPanelTemplate>
-											<StackPanel Orientation="Vertical" HorizontalAlignment="Stretch"/>	
-										</ItemsPanelTemplate>
-									</ItemsControl.ItemsPanel>
-									<ListBox.ItemContainerStyle>
-										<Style TargetType="ListBoxItem">
-											<Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-											<Setter Property="Margin" Value="0"/>
-										</Style>
-									</ListBox.ItemContainerStyle>
-									<ItemsControl.ItemTemplate>
-										<DataTemplate>
-											<Border Margin="0,4" SizeChanged="PromField_SizeChanged">
-												<Image Name="Field" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-															Stretch="Uniform" Source="{Binding Converter={StaticResource ImageSourceConverter}}"/>
-											</Border>
-										</DataTemplate>
-									</ItemsControl.ItemTemplate>
-								</ListBox>
-
-							</Border>
-
-							<Border Grid.ColumnSpan="9" Grid.RowSpan="9" Width="420" Height="Auto"
-									  HorizontalAlignment="Center" VerticalAlignment="Center"
-									  Name="GameEndGUI"
-									  Opacity="0.8"
-									  BorderBrush="DarkGray" BorderThickness="2" CornerRadius="5"
-									  Visibility="{Binding State, Converter={StaticResource StateConverter}}"
-									  Background="White">
-								<StackPanel Margin="20" Orientation="Vertical">
-									<!--<TextBlock HorizontalAlignment="Center" Margin="10" FontSize="30" TextWrapping="Wrap" FontWeight="UltraBold">
-										<TextBlock.Text>
-											<MultiBinding Converter="{StaticResource StateTextConv}">
-												<Binding Path="State" />
-												<Binding Path="StateReason" />
-											</MultiBinding>
-										</TextBlock.Text>
-									</TextBlock>-->
-									<TextBlock HorizontalAlignment="Center" Margin="20,10,20,0" FontSize="30" FontWeight="UltraBold" Text="{Binding State, Converter={StaticResource StateToText}}"/>
-									<TextBlock HorizontalAlignment="Center" Margin="20,0,20,10" FontSize="30" FontWeight="UltraBold" Text="{Binding StateReason, Converter={StaticResource ReasonToText}}"/>
-								</StackPanel>
-							</Border>
-							
-						</Grid>
-					</Canvas>
-				</Border>
-			</Border>
+			<ContentControl
+					ContentTemplate="{StaticResource BoardDisplay}"
+					Content="{Binding DisplayPosition}"/>
 
 			<DockPanel Grid.Column="1" Margin="5">
 

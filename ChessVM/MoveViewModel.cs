@@ -17,10 +17,10 @@ namespace ChessVM
 			set => _gameMove.Comment = value;
 		}
 
-		public MoveViewModel(GameMove gameMove)
+		public MoveViewModel(GameMove gameMove, bool isBoardFlipped)
 		{
 			_gameMove = gameMove ?? throw new ArgumentNullException(nameof(gameMove));
-			LeadsTo = new PositionViewModel(gameMove.NextPosition, _gameMove);
+			LeadsTo = new PositionViewModel(gameMove.NextPosition, isBoardFlipped, _gameMove);
 		}
 	}
 }

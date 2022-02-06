@@ -311,7 +311,7 @@ namespace Chess
 						.Replace("  ", "2")
 						.Replace(" ", "1");
 
-			FEN = FEN.Substring(0, FEN.Length - 1);
+			FEN = FEN[0..^1];
 			FEN += SideToPlay == Side.White ? " w " : " b ";
 
 			if (Castles[0, 1]) FEN += "K";
