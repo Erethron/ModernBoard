@@ -1,6 +1,7 @@
 ﻿using Chess;
 using PuzzleHelper;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -10,10 +11,10 @@ namespace DefensivePuzzleCreator
 {
    class Program
    {
-      private const string PGN_PATH = @"E:\Downloads";
+      private const string PGN_PATH = @"E:\tmp";
 		private const string StockFishExecutable = @"e:\Stockfish\stockfish.exe";
 		private const int Threads = 16;
-		private const int THINK_TIME_LONG = 20000;
+		private const int THINK_TIME_LONG = 10000;
 		private const int THINK_TIME_SHORT = 1000;
 		private const int EVAL_TRESHOLD = 200;
 
@@ -47,6 +48,7 @@ namespace DefensivePuzzleCreator
 
 			return true;
 		}
+		
 		private static void EvaluatePosition(GameAnalyzer analyzer, GamePosition gamePosition)
 		{
 			EvaluationResult eval = analyzer.EvaluatePosition(gamePosition.Position, 2, THINK_TIME_SHORT);
@@ -65,19 +67,33 @@ namespace DefensivePuzzleCreator
 
 			Console.Write($"{gamePosition.FEN};{eval.Move.ToLAN()}");
 
+			var history = new HashSet<string>{ GameAnalyzer.GetPseudoFEN(gamePosition.FEN) };
+
 			var position = gamePosition.Position;
 			while (true)
 			{
-				//OPponent move - does not need to be forcing
+				//Opponent move - does not need to be forcing
 				position = position.ApplyMove(eval.Move);
 				eval = analyzer.EvaluatePosition(position, 2, THINK_TIME_LONG);
+				if (eval.Move == null)
+				{
+					Console.Write(",#");
+					break;
+				}
+
 				Console.Write($",{eval.Move.ToLAN()}");
+
+				string pseudoFen = GameAnalyzer.GetPseudoFEN(position.FEN);
+				if (history.Contains(pseudoFen))
+					break;
+				history.Add(pseudoFen);
 
 				//Is our next move forcing?
 				position = position.ApplyMove(eval.Move);
 				eval = analyzer.EvaluatePosition(position, 2, THINK_TIME_LONG);
 				if (eval.PV.All(v => v > -EVAL_TRESHOLD))
 					break;
+
 				Console.Write($",{eval.Move.ToLAN()}");
 			}
 
