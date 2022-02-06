@@ -24,8 +24,12 @@ namespace PuzzleHelper
 			{ Piece.King, 0 }
 		};
 
+		public static string GetPseudoFEN(string fen)
+		{
+			return string.Join("|", fen.Split(' ').Take(2));
+		}
 
-		public GameAnalyzer(string pathToUciEngineExecutable, int engineThreads = 4, string cacheFile = null)
+	public GameAnalyzer(string pathToUciEngineExecutable, int engineThreads = 4, string cacheFile = null)
 		{
 			if (string.IsNullOrWhiteSpace(pathToUciEngineExecutable))
 				throw new ArgumentException($"'{nameof(pathToUciEngineExecutable)}' cannot be null or whitespace.", nameof(pathToUciEngineExecutable));

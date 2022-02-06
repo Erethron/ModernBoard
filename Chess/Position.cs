@@ -16,7 +16,7 @@ namespace Chess
 		public int PlysTo50Moves { get; private set; }
 		public int MoveNumber { get; private set; }
 		public string FEN { get; private set; }
-		
+
 		private Position()
 		{
 		}
