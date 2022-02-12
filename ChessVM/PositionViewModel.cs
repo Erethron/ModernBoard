@@ -155,7 +155,9 @@ namespace ChessVM
 			if (BeginDragFrom != null)
 			{
 				var coordinate = new Coordinate(file, rank);
-				if (GetOccupation(BeginDragFrom).Piece == Piece.Pawn && (rank == 0 || rank == 7))
+				if (DragPiece.Piece == Piece.Pawn 
+					&& (rank == 0 || rank == 7)
+					&& Math.Abs(rank - BeginDragFrom.Rank) == 1)
 				{
 					DragPiece = null;
 					CanPromote = true;
