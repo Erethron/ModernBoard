@@ -13,7 +13,7 @@
 
 	<DataTemplate x:Key="BoardDisplay">
 
-			<ItemsControl Name="BoardContainer" SizeChanged="BoardContainer_SizeChanged"
+		<ItemsControl Name="BoardContainer" SizeChanged="BoardContainer_SizeChanged"
 											  Grid.Row="0" Grid.Column="1" Grid.RowSpan="8" Grid.ColumnSpan="8"
 											  ItemsSource="{Binding Pieces}" 
 											  ItemTemplate="{StaticResource PiecePos}">

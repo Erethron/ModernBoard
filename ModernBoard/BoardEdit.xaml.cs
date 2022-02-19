@@ -14,13 +14,16 @@ namespace ModernBoard
 	public partial class BoardEdit
 	{
 		private BoardEditViewModel _dataContext;
-		private FrameworkElement _innerGrid;
 		private double _drawImageSize;
 
 		private void BoardContainer_SizeChanged(object sender, SizeChangedEventArgs e)
 		{
 			if (sender is FrameworkElement element)
+			{
 				element.Width = element.ActualHeight;
+				_drawImageSize = element.ActualWidth / 8;
+				SetDrawImageSizeOnDataContext();
+			}
 		}
 		private void BoardContainer_OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
 		{
@@ -47,28 +50,15 @@ namespace ModernBoard
 
 		private void BoardContainer_MouseUp(object sender, MouseButtonEventArgs e)
 		{
-			var pos = e.GetPosition(_innerGrid);
+			var pos = e.GetPosition(sender as FrameworkElement);
 			_dataContext.EndPieceDrag(pos.X, pos.Y);
 		}
 
-		private void Field_MouseDown(object sender, MouseButtonEventArgs e)
+		private void BoardContainer_MouseDown(object sender, MouseButtonEventArgs e)
 		{
 			var element = sender as FrameworkElement;
-			if (element?.DataContext is PiecePosition pos
-					&& _dataContext != null
-					&& pos.Occupation.Side == _dataContext.SideToPlay)
-			{
-				_dataContext.BeginPieceDrag(pos.Coordinate);
-			}
-		}
-
-		private void Field_SizeChanged(object sender, SizeChangedEventArgs e)
-		{
-			if (sender is FrameworkElement element)
-			{
-				_drawImageSize = element.ActualWidth;
-				SetDrawImageSizeOnDataContext();
-			}
+			var pos = e.GetPosition(element);
+			_dataContext.BeginPieceDrag(pos.X, pos.Y);
 		}
 
 		private void SetDrawImageSizeOnDataContext()
@@ -76,12 +66,6 @@ namespace ModernBoard
 			if (_dataContext != null && _drawImageSize > 0)
 				_dataContext.DragImageSize = _drawImageSize;
 		}
-
-		private void InnerGrid_Loaded(object sender, RoutedEventArgs e)
-		{
-			_innerGrid = sender as FrameworkElement;
-		}
-
 
 		private void BoardContainer_MouseLeave(object sender, MouseEventArgs e)
 		{

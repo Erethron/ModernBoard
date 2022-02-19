@@ -30,10 +30,9 @@
 				<ColumnDefinition Width="*"/>
 			</Grid.ColumnDefinitions>
 
-			<Border Margin="5" CornerRadius="4" BorderThickness="2" BorderBrush="DarkGray" >
+			<Border Margin="5" CornerRadius="4" BorderThickness="2" BorderBrush="DarkGray"  SizeChanged="BoardContainer_SizeChanged">
 				<Border Margin="5" BorderThickness="1" BorderBrush="DodgerBlue">
-					<Grid Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=Canvas}}"
-									Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Canvas}}">
+					<Grid>
 						<Grid.RowDefinitions>
 							<RowDefinition Height="*"/>
 							<RowDefinition Height="*"/>
@@ -94,11 +93,12 @@
 						<Label Content="{Binding RankLabels[6]}" Grid.Row="1" Grid.Column="0" BorderThickness="0,0,1,0"/>
 						<Label Content="{Binding RankLabels[7]}" Grid.Row="0" Grid.Column="0" BorderThickness="0,0,1,0"/>
 						
-						<ContentControl Grid.Column="1" Grid.ColumnSpan="8"
+						<ContentControl Grid.Column="1" Grid.ColumnSpan="8" Grid.RowSpan="8" VerticalAlignment="Stretch"
 							ContentTemplate="{StaticResource BoardDisplay}"
 							Content="{Binding DisplayPosition}"/>
 
-						<ContentControl Grid.Column="1" Grid.ColumnSpan="8"
+						<ContentControl Grid.Column="1" Grid.ColumnSpan="8" Grid.RowSpan="8"
+							Visibility="{Binding IsHumanMove, Converter={StaticResource VisConv}}"
 							ContentTemplate="{StaticResource BoardEdit}"
 							Content="{Binding BoardEditor}"/>
 

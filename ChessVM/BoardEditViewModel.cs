@@ -29,7 +29,14 @@ namespace ChessVM
 
 		public List<Occupation> PromotionOptions => PromotionPieces.Select(p => new Occupation(SideToPlay, p)).ToList();
 		public Coordinate PromotionSquare { get; private set; }
-		public event EventHandler<Coordinate> DragStart;
+		public double PromotionX => PromotionSquare == null 
+												? 0 
+												: (IsBoardFlipped ? 7 - PromotionSquare.File : PromotionSquare.File)  * DragImageSize;
+		public double PromotionY => 0;
+		public double PromotionWidth => DragImageSize;
+		public double PromotionHeight => DragImageSize * PromotionPieces.Length;
+
+		public event EventHandler DragStart;
 		public event EventHandler DragAbort;
 		public event EventHandler DragComplete;
 
@@ -46,9 +53,18 @@ namespace ChessVM
 			}
 		}
 
-		public void BeginPieceDrag(Coordinate coordinate)
+		public void BeginPieceDrag(double x, double y)
 		{
-			DragStart?.Invoke(this, coordinate);
+			int file = Convert.ToInt32(Math.Floor(x / DragImageSize));
+			int rank = Convert.ToInt32(Math.Floor(y / DragImageSize));
+			if (IsBoardFlipped)
+				file = 7 - file;
+			else
+				rank = 7 - rank;
+
+			BeginDragFrom = new Coordinate(file, rank);
+			DragPiece = Position.GetOccupation(BeginDragFrom);
+			DragStart?.Invoke(this, EventArgs.Empty);
 		}
 
 		public void AbortPieceDrag()

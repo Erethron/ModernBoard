@@ -9,5 +9,10 @@ namespace ModernBoard
 {
 	public partial class Game
 	{
+		private void BoardContainer_SizeChanged(object sender, SizeChangedEventArgs e)
+		{
+			if (sender is FrameworkElement element)
+				element.Width = element.ActualHeight;
+		}
 	}
 }

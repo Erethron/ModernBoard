@@ -35,8 +35,6 @@ namespace ChessVM.GameViewModels
 			_game = game ?? throw new ArgumentNullException(nameof(game));
 			StartPosition = new PositionViewModel(_game.StartPosition, IsBoardFlipped);
 			CurrentPosition = StartPosition;
-			CurrentPosition.State = State;
-			CurrentPosition.StateReason = StateReason;
 			DisplayPosition = CurrentPosition;
 
 			InitializeChessEngine();
@@ -47,6 +45,47 @@ namespace ChessVM.GameViewModels
 				IsBoardFlipped = IsBoardFlipped,
 				Position = CurrentPosition
 			};
+
+			BoardEditor.DragStart += BoardEditor_DragStart;
+			BoardEditor.DragAbort += BoardEditor_DragAbort;
+			BoardEditor.DragComplete += BoardEditor_DragComplete;
+		}
+
+		private void BoardEditor_DragStart(object sender, EventArgs e)
+		{
+			var pos = BoardEditor.BeginDragFrom;
+			if (!IsHumanMove || pos == null)
+				BoardEditor.AbortPieceDrag();
+
+			var piece = CurrentPosition.GetOccupation(pos);
+			if (piece.Side == CurrentPosition.SideToPlay)
+			{
+				DisplayPosition = new PositionViewModel(CurrentPosition.Position.RemovePiece(pos), IsBoardFlipped, CurrentPosition.LastMove);
+			}
+			else
+			{
+				BoardEditor.AbortPieceDrag();
+			}
+		}
+		
+		private void BoardEditor_DragAbort(object sender, EventArgs e)
+		{
+			DisplayPosition = CurrentPosition;
+		}
+
+		private void BoardEditor_DragComplete(object sender, EventArgs e)
+		{
+			if (IsHumanMove
+					&& BoardEditor.DragMove != null
+					&& CurrentPosition.GetValidMoves().Contains(BoardEditor.DragMove)
+					&& ApplyMove(new MoveViewModel(CurrentPosition.Position.GetGameMove(BoardEditor.DragMove), IsBoardFlipped)))
+			{
+				OnHumanMove();
+			}
+			else
+			{
+				BoardEditor.AbortPieceDrag();
+			}
 		}
 
 		private readonly Game _game;

@@ -10,9 +10,6 @@ namespace ChessVM
 	{
 		public bool IsBoardFlipped { get; internal set; }
 
-		public GameState State { get; set; }
-		public GameStateReason StateReason { get; set; }
-
 		public IReadOnlyCollection<PiecePosition> Pieces { get; }
 		public string FEN => Position.Position.FEN;
 		public Side SideToPlay => Position.Position.SideToPlay;
