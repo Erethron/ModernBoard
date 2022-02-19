@@ -19,7 +19,16 @@ namespace ChessVM.GameViewModels
 	public abstract class GameViewModel : ViewModelBase, IDisposable
 	{
 		public bool IsBoardFlipped { get; private set; }
+		public BoardEditViewModel BoardEditor { get; private set; }
+		public bool IsHumanMove { get; protected set; }
 
+		private static readonly string[] RegularFileLabels = { "a", "b", "c", "d", "e", "f", "g", "h" };
+		private static readonly string[] FlippedFileLabels = { "h", "g", "f", "e", "d", "c", "b", "a" };
+		public string[] FileLabels => IsBoardFlipped ? FlippedFileLabels : RegularFileLabels;
+
+		private static readonly string[] RegularRankLabels = { "1", "2", "3", "4", "5", "6", "7", "8" };
+		private static readonly string[] FlippedRankLabels = { "8", "7", "6", "5", "4", "3", "2", "1" };
+		public string[] RankLabels => IsBoardFlipped ? FlippedRankLabels : RegularRankLabels;
 
 		protected GameViewModel(Game game)
 		{
@@ -32,6 +41,12 @@ namespace ChessVM.GameViewModels
 
 			InitializeChessEngine();
 			AnalyzeCommand = new RelayCommand(() => { AnalyzeAsync(); });
+
+			BoardEditor = new BoardEditViewModel
+			{
+				IsBoardFlipped = IsBoardFlipped,
+				Position = CurrentPosition
+			};
 		}
 
 		private readonly Game _game;
@@ -213,6 +228,7 @@ namespace ChessVM.GameViewModels
 		{
 			IsBoardFlipped = !IsBoardFlipped;
 			DisplayPosition.IsBoardFlipped = IsBoardFlipped;
+			BoardEditor.IsBoardFlipped = IsBoardFlipped;
 		}
 
 		public void Dispose()

@@ -4,6 +4,15 @@
              xmlns:local="clr-namespace:ModernBoard"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-         
-    </Application.Resources>
+
+		<local:SquareBackConverter x:Key="BackConverter"/>
+		<local:RowConverter x:Key="RowConverter"/>
+		<local:ColConverter x:Key="ColConverter"/>
+		<local:ImageSourceConverter x:Key="ImageSourceConverter"/>
+		<local:GameToVisibilityConverter x:Key="StateConverter"/>
+		<local:BoolToVisibility x:Key="VisConv" />
+		<local:PromotionRowConverter x:Key="PromRowConverter"/>
+		<local:PromotionColConverter x:Key="PromColConverter"/>
+
+	</Application.Resources>
 </Application>

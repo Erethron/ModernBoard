@@ -68,4 +68,11 @@
     </Resource>
   </ItemGroup>
 
+  <ItemGroup>
+    <Page Update="BoardEdit.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+
 </Project>

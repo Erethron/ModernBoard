@@ -1,0 +1,58 @@
+﻿<ResourceDictionary x:Class="ModernBoard.BoardEdit"
+						  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+						  xmlns:vm="clr-namespace:ChessVM;assembly=ChessVM"
+                    xmlns:local="clr-namespace:ModernBoard"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+	<DataTemplate x:Key="BoardEdit">
+		<Canvas 
+			Background="#80FF0080"
+			Loaded="BoardContainer_OnLoaded" 
+			DataContextChanged="BoardContainer_OnDataContextChanged" 
+			SizeChanged="BoardContainer_SizeChanged" 
+			MouseMove="BoardContainer_MouseMove" 
+			MouseUp="BoardContainer_MouseUp" 
+			MouseLeave="BoardContainer_MouseLeave">
+
+			<Image
+							Canvas.Left="{Binding DragImageX}" Canvas.Top="{Binding DragImageY}" 
+							Width="{Binding DragImageSize}" Height="{Binding DragImageSize}"
+							Visibility="{Binding IsDragging, Converter={StaticResource VisConv}}"
+							Source="{Binding DragPiece, Converter={StaticResource ImageSourceConverter}}"/>
+
+			<Border Name="PromotionGUI" Grid.RowSpan="4"
+								Canvas.Left="{Binding DragImageX}" Canvas.Top="{Binding DragImageY}"
+								Visibility="{Binding CanPromote, Converter={StaticResource VisConv}}"
+								Margin="-4,-4,-4,-6" CornerRadius="5" Background="White" BorderBrush="DarkGray" BorderThickness="2">
+				<ListBox BorderThickness="0" ItemsSource="{Binding PromotionOptions}" HorizontalContentAlignment="Stretch" 
+												Margin="2"
+												SelectionChanged="PromotionGui_SelectionChanged"
+												ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+												ScrollViewer.VerticalScrollBarVisibility="Hidden">
+					<ItemsControl.ItemsPanel>
+						<ItemsPanelTemplate>
+							<StackPanel Orientation="Vertical" HorizontalAlignment="Stretch"/>
+						</ItemsPanelTemplate>
+					</ItemsControl.ItemsPanel>
+					<ListBox.ItemContainerStyle>
+						<Style TargetType="ListBoxItem">
+							<Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+							<Setter Property="Margin" Value="0"/>
+						</Style>
+					</ListBox.ItemContainerStyle>
+					<ItemsControl.ItemTemplate>
+						<DataTemplate>
+							<Border Margin="0,4" SizeChanged="PromField_SizeChanged">
+								<Image Name="Field" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+																Stretch="Uniform" Source="{Binding Converter={StaticResource ImageSourceConverter}}"/>
+							</Border>
+						</DataTemplate>
+					</ItemsControl.ItemTemplate>
+				</ListBox>
+
+			</Border>
+
+		</Canvas>
+	</DataTemplate>
+
+</ResourceDictionary>

@@ -8,9 +8,6 @@ namespace ChessVM.GameViewModels
 {
 	public abstract class VersusEngineVM : GameViewModel
 	{
-		private bool _humanMove;
-
-
 		protected VersusEngineVM()
 			:this(Game.CreateNew())
 		{
@@ -24,70 +21,58 @@ namespace ChessVM.GameViewModels
 		protected VersusEngineVM(Game game)
 			: base(game)
 		{
-			_humanMove = true;
+			IsHumanMove = true;
 			if (game.StartPosition.Position.SideToPlay == Side.Black)
 				FlipBoard();
-			DisplayPosition.DragStart += DisplayPosition_DragStart;
-		}
 
-		private void DisplayPosition_DragStart(object sender, Coordinate e)
-		{
-			BeginPieceDrag(e);
+	
 		}
 
 		public void BeginPieceDrag(Coordinate from)
 		{
 
-			var piece = CurrentPosition.GetOccupation(from);
-			if (piece.Side == CurrentPosition.SideToPlay)
-			{
-				var position = new PositionViewModel(CurrentPosition.Position.RemovePiece(from), IsBoardFlipped, CurrentPosition.LastMove)
-				{
-					BeginDragFrom = from,
-					DragPiece = piece
-				};
+			//var piece = CurrentPosition.GetOccupation(from);
+			//if (piece.Side == CurrentPosition.SideToPlay)
+			//{
+			//	var position = new PositionViewModel(CurrentPosition.Position.RemovePiece(from), IsBoardFlipped, CurrentPosition.LastMove)
+			//	{
+			//		BeginDragFrom = from,
+			//		DragPiece = piece
+			//	};
 
-				SetDisplayPosition(position);
+			//	SetDisplayPosition(position);
 
-			}
-			else
-				DisplayPosition.AbortPieceDrag();
+			//}
+			//else
+			//	DisplayPosition.AbortPieceDrag();
 		}
 
 		protected override void OnHumanMove()
 		{
-			_humanMove = false;
+			IsHumanMove = false;
 			ApplyBestEngineMove(3000, 0);
 		}
 
 		private void CurrentPosition_DragComplete(object sender, EventArgs e)
 		{
-			if (_humanMove
-					&& DisplayPosition.DragMove != null
-					&& CurrentPosition.GetValidMoves().Contains(DisplayPosition.DragMove)
-					&& ApplyMove(new MoveViewModel(CurrentPosition.Position.GetGameMove(DisplayPosition.DragMove), IsBoardFlipped)))
-			{
-				OnHumanMove();
-			}
-			else
-			{
-				SetDisplayPosition(CurrentPosition);
-			}
+			//if (IsHumanMove
+			//		&& DisplayPosition.DragMove != null
+			//		&& CurrentPosition.GetValidMoves().Contains(DisplayPosition.DragMove)
+			//		&& ApplyMove(new MoveViewModel(CurrentPosition.Position.GetGameMove(DisplayPosition.DragMove), IsBoardFlipped)))
+			//{
+			//	OnHumanMove();
+			//}
+			//else
+			//{
+			//	SetDisplayPosition(CurrentPosition);
+			//}
 		}
 
 		private void SetDisplayPosition(PositionViewModel position)
 		{
-			DisplayPosition.DragStart -= DisplayPosition_DragStart;
-			DisplayPosition.DragComplete -= CurrentPosition_DragComplete;
-			DisplayPosition.DragAbort -= CurrentPosition_DragAbort;
 			position.State = State;
 			position.StateReason = StateReason;
-			position.DragImageX = DisplayPosition.DragImageX;
-			position.DragImageY = DisplayPosition.DragImageY;
 			DisplayPosition = position;
-			DisplayPosition.DragComplete += CurrentPosition_DragComplete;
-			DisplayPosition.DragStart += DisplayPosition_DragStart;
-			DisplayPosition.DragAbort += CurrentPosition_DragAbort;
 		}
 
 		private void CurrentPosition_DragAbort(object sender, EventArgs e)
@@ -97,7 +82,8 @@ namespace ChessVM.GameViewModels
 
 		protected override void OnEngineMove()
 		{
-			_humanMove = true;
+			IsHumanMove = true;
+			BoardEditor.Position = CurrentPosition;
 		}
 
 		protected override bool ApplyMove(MoveViewModel move)

@@ -20,6 +20,7 @@
 				<ResourceDictionary>
 					<ResourceDictionary.MergedDictionaries>
 						<ResourceDictionary Source="Board.xaml"/>
+						<ResourceDictionary Source="BoardEdit.xaml"/>
 					</ResourceDictionary.MergedDictionaries>
 				</ResourceDictionary>
 			</Grid.Resources>
@@ -29,10 +30,95 @@
 				<ColumnDefinition Width="*"/>
 			</Grid.ColumnDefinitions>
 
-			<ContentControl
-					ContentTemplate="{StaticResource BoardDisplay}"
-					Content="{Binding DisplayPosition}"/>
+			<Border Margin="5" CornerRadius="4" BorderThickness="2" BorderBrush="DarkGray" >
+				<Border Margin="5" BorderThickness="1" BorderBrush="DodgerBlue">
+					<Grid Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=Canvas}}"
+									Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Canvas}}">
+						<Grid.RowDefinitions>
+							<RowDefinition Height="*"/>
+							<RowDefinition Height="*"/>
+							<RowDefinition Height="*"/>
+							<RowDefinition Height="*"/>
+							<RowDefinition Height="*"/>
+							<RowDefinition Height="*"/>
+							<RowDefinition Height="*"/>
+							<RowDefinition Height="*"/>
+							<RowDefinition Height="25"/>
+						</Grid.RowDefinitions>
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition Width="25"/>
+							<ColumnDefinition Width="*"/>
+							<ColumnDefinition Width="*"/>
+							<ColumnDefinition Width="*"/>
+							<ColumnDefinition Width="*"/>
+							<ColumnDefinition Width="*"/>
+							<ColumnDefinition Width="*"/>
+							<ColumnDefinition Width="*"/>
+							<ColumnDefinition Width="*"/>
+						</Grid.ColumnDefinitions>
 
+						<Grid.Resources>
+							<Style TargetType="Label">
+								<Setter Property="FontWeight" Value="Bold"/>
+								<Setter Property="FontSize" Value="16"/>
+								<Setter Property="FontFamily" Value="Arial"/>
+								<Setter Property="HorizontalAlignment" Value="Stretch"/>
+								<Setter Property="VerticalAlignment" Value="Stretch"/>
+								<Setter Property="HorizontalContentAlignment" Value="Center"/>
+								<Setter Property="VerticalContentAlignment" Value="Center"/>
+								<Setter Property="BorderBrush" Value="DodgerBlue"/>
+								<Setter Property="Padding" Value="0"/>
+								<Setter Property="Foreground" Value="DarkGray"/>
+							</Style>
+
+							<local:ReasonToTextconverter x:Key="ReasonToText"/>
+							<local:StateToTextconverter x:Key="StateToText"/>
+
+						</Grid.Resources>
+
+						<Label Content="{Binding FileLabels[0]}" Grid.Row="8" Grid.Column="1" BorderThickness="0,1,0,0"/>
+						<Label Content="{Binding FileLabels[1]}" Grid.Row="8" Grid.Column="2" BorderThickness="0,1,0,0"/>
+						<Label Content="{Binding FileLabels[2]}" Grid.Row="8" Grid.Column="3" BorderThickness="0,1,0,0"/>
+						<Label Content="{Binding FileLabels[3]}" Grid.Row="8" Grid.Column="4" BorderThickness="0,1,0,0"/>
+						<Label Content="{Binding FileLabels[4]}" Grid.Row="8" Grid.Column="5" BorderThickness="0,1,0,0"/>
+						<Label Content="{Binding FileLabels[5]}" Grid.Row="8" Grid.Column="6" BorderThickness="0,1,0,0"/>
+						<Label Content="{Binding FileLabels[6]}" Grid.Row="8" Grid.Column="7" BorderThickness="0,1,0,0"/>
+						<Label Content="{Binding FileLabels[7]}" Grid.Row="8" Grid.Column="8" BorderThickness="0,1,0,0"/>
+
+						<Label Content="{Binding RankLabels[0]}" Grid.Row="7" Grid.Column="0" BorderThickness="0,0,1,0"/>
+						<Label Content="{Binding RankLabels[1]}" Grid.Row="6" Grid.Column="0" BorderThickness="0,0,1,0"/>
+						<Label Content="{Binding RankLabels[2]}" Grid.Row="5" Grid.Column="0" BorderThickness="0,0,1,0"/>
+						<Label Content="{Binding RankLabels[3]}" Grid.Row="4" Grid.Column="0" BorderThickness="0,0,1,0"/>
+						<Label Content="{Binding RankLabels[4]}" Grid.Row="3" Grid.Column="0" BorderThickness="0,0,1,0"/>
+						<Label Content="{Binding RankLabels[5]}" Grid.Row="2" Grid.Column="0" BorderThickness="0,0,1,0"/>
+						<Label Content="{Binding RankLabels[6]}" Grid.Row="1" Grid.Column="0" BorderThickness="0,0,1,0"/>
+						<Label Content="{Binding RankLabels[7]}" Grid.Row="0" Grid.Column="0" BorderThickness="0,0,1,0"/>
+						
+						<ContentControl Grid.Column="1" Grid.ColumnSpan="8"
+							ContentTemplate="{StaticResource BoardDisplay}"
+							Content="{Binding DisplayPosition}"/>
+
+						<ContentControl Grid.Column="1" Grid.ColumnSpan="8"
+							ContentTemplate="{StaticResource BoardEdit}"
+							Content="{Binding BoardEditor}"/>
+
+						<Border Grid.ColumnSpan="9" Grid.RowSpan="9" Width="420" Height="Auto"
+										  HorizontalAlignment="Center" VerticalAlignment="Center"
+										  Name="GameEndGUI"
+										  Opacity="0.8"
+										  BorderBrush="DarkGray" BorderThickness="2" CornerRadius="5"
+										  Visibility="{Binding State, Converter={StaticResource StateConverter}}"
+										  Background="White">
+							<StackPanel Margin="20" Orientation="Vertical">
+								<TextBlock HorizontalAlignment="Center" Margin="20,10,20,0" FontSize="30" FontWeight="UltraBold" Text="{Binding State, Converter={StaticResource StateToText}}"/>
+								<TextBlock HorizontalAlignment="Center" Margin="20,0,20,10" FontSize="30" FontWeight="UltraBold" Text="{Binding StateReason, Converter={StaticResource ReasonToText}}"/>
+							</StackPanel>
+						</Border>
+						
+					</Grid>
+				</Border>
+			</Border>
+			
 			<DockPanel Grid.Column="1" Margin="5">
 
 				<Border DockPanel.Dock="Bottom" BorderBrush="DarkGray" Background="LightGray" BorderThickness="1" Margin="5" Padding="2">

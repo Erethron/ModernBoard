@@ -8,54 +8,16 @@ namespace ChessVM
 
 	public class PositionViewModel : ViewModelBase
 	{
-		public Occupation DragPiece { get; internal set; }
-
-		private static readonly string[] RegularFileLabels = { "a", "b", "c", "d", "e", "f", "g", "h" };
-		private static readonly string[] FlippedFileLabels = { "h", "g", "f", "e", "d", "c", "b", "a" };
-		public string[] FileLabels => IsBoardFlipped ? FlippedFileLabels : RegularFileLabels;
-
-		private static readonly string[] RegularRankLabels = { "1", "2", "3", "4", "5", "6", "7", "8" };
-		private static readonly string[] FlippedRankLabels = { "8", "7", "6", "5", "4", "3", "2", "1" };
-		public string[] RankLabels => IsBoardFlipped ? FlippedRankLabels : RegularRankLabels;
+		public bool IsBoardFlipped { get; internal set; }
 
 		public GameState State { get; set; }
 		public GameStateReason StateReason { get; set; }
-
-		public Coordinate BeginDragFrom { get; internal set; }
-		public double DragImageSize { get; set; }
-		public double DragImageX { get; set; }
-		public double DragImageY { get; set; }
-		public Move DragMove { get; private set; }
-
-		public bool CanPromote { get; private set; }
-		public bool IsBoardFlipped { get; internal set; }
-
-		private static readonly Piece[] PromotionPieces = { Piece.Queen, Piece.Knight, Piece.Rook, Piece.Bishop };
-		public List<Occupation> PromotionOptions => PromotionPieces.Select(p => new Occupation(SideToPlay, p)).ToList();
-		public Coordinate PromotionSquare { get; private set; }
-		public event EventHandler<Coordinate> DragStart;
-		public event EventHandler DragAbort;
-		public event EventHandler DragComplete;
-
-		public Occupation PromotionChoice
-		{
-			get => null;
-			set
-			{
-				if (value != null && PromotionPieces.Contains(value.Piece))
-				{
-					CanPromote = false;
-					CompletePieceDrag(PromotionSquare, value.Piece);
-				}
-			}
-		}
 
 		public IReadOnlyCollection<PiecePosition> Pieces { get; }
 		public string FEN => Position.Position.FEN;
 		public Side SideToPlay => Position.Position.SideToPlay;
 		public int MoveNumber => Position.MoveNumber;
 		public GameMove LastMove { get; }
-		public bool IsDragging => DragPiece != null;
 		public GamePosition Position { get; }
 		public MoveViewModel NextMove => Position.NextMove == null ? null : new MoveViewModel(Position.NextMove, IsBoardFlipped);
 
@@ -118,61 +80,6 @@ namespace ChessVM
 		public bool IsCheckMate => Position.Position.IsCheckMate;
 		public bool IsStaleMate => Position.Position.IsStaleMate;
 
-		public void BeginPieceDrag(Coordinate coordinate)
-		{
-			DragStart?.Invoke(this, coordinate);
-		}
 
-		public void AbortPieceDrag()
-		{
-			DragPiece = null;
-			BeginDragFrom = null;
-			CanPromote = false;
-			DragAbort?.Invoke(this, EventArgs.Empty);
-		}
-
-		public void EndPieceDrag(double mouseX, double mouseY)
-		{
-			if (DragPiece == null)
-			{
-				AbortPieceDrag();
-				return;
-			}
-
-			int file = Convert.ToInt32(Math.Floor(mouseX / DragImageSize));
-			int rank = Convert.ToInt32(Math.Floor(mouseY / DragImageSize));
-			if (!IsBoardFlipped)
-				rank = 7 - rank;
-			else
-				file = 7 - file;
-
-			if (rank < 0 || rank > 7 || file < 0 || file > 7)
-			{
-				AbortPieceDrag();
-				return;
-			}
-
-			if (BeginDragFrom != null)
-			{
-				var coordinate = new Coordinate(file, rank);
-				if (DragPiece.Piece == Piece.Pawn 
-					&& (rank == 0 || rank == 7)
-					&& Math.Abs(rank - BeginDragFrom.Rank) == 1)
-				{
-					DragPiece = null;
-					CanPromote = true;
-					OnPropertyChanged(nameof(PromotionChoice));
-					PromotionSquare = coordinate;
-				}
-				else
-					CompletePieceDrag(coordinate, Piece.None);
-			}
-		}
-
-		private void CompletePieceDrag(Coordinate to, Piece promotion)
-		{
-			DragMove = new Move(BeginDragFrom, to, promotion);
-			DragComplete?.Invoke(this, EventArgs.Empty);
-		}
 	}
 }
