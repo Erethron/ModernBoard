@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Chess.PositionFactories;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -7,7 +8,7 @@ namespace Chess
 	public class Position
 	{
 		public const string START_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-		public static Position GetStartPosition() => FromFEN(START_FEN);
+		public static Position GetStartPosition(PositionFactory _) => FromFEN(START_FEN);
 
 		public Occupation[,] Squares { get; } = new Occupation[8, 8];
 		public bool[,] Castles { get; } = new bool[2, 2];

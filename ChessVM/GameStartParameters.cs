@@ -1,5 +1,7 @@
 ﻿using Chess;
+using Chess.EngineWrappers;
 using Chess.PositionFactories;
+using ChessVM.GameViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,14 +14,17 @@ namespace ChessVM
 	{
 		public FactoryGroup FactoryGroup { get; set; }
 		public string FactoryName { get; set; }
-		public Func<Position> FactoryDelegate { get; set; }
+		public Func<PositionFactory, Position> FactoryDelegate { get; set; }
 		public bool SlowMode { get; set; }
 
-		public static List<GameStartParameters> GetAllPossibleStartParameters()
+		private static List<GameStartParameters> _startParams;
+        public static List<GameStartParameters> GetAllPossibleStartParameters()
 		{
-			return PositionFactory.Groups
-				.SelectMany(g => g.Value.Select(v => new GameStartParameters { FactoryGroup = g.Key, FactoryName = v.Key, FactoryDelegate = v.Value, SlowMode = false }))
-				.ToList();
-		}
+			_startParams ??= MainViewModel.Instance.DefaultPositionFactory.Groups
+                .SelectMany(g => g.Value.Select(v => new GameStartParameters { FactoryGroup = g.Key, FactoryName = v.Key, FactoryDelegate = v.Value, SlowMode = false }))
+                .ToList();
+
+            return _startParams;
+        }
 	}
 }

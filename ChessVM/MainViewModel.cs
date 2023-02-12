@@ -6,6 +6,7 @@ using GalaSoft.MvvmLight.Command;
 using Chess.PositionFactories;
 using ChessVM.GameViewModels;
 using Chess;
+using Chess.EngineWrappers;
 
 namespace ChessVM
 {
@@ -18,20 +19,27 @@ namespace ChessVM
 		public ReadOnlyObservableCollection<GameViewModel> Games { get; }
 		public GameViewModel CurrentGame { get; set; }
 
-		public MainViewModel()
+		public UciEngineWrapper DefaultEngine { get; }
+        public PositionFactory DefaultPositionFactory { get; }
+
+        public MainViewModel()
 		{
 			Games = new ReadOnlyObservableCollection<GameViewModel>(_games);
-		}
 
-		public RelayCommand<GameStartParameters> AddGameCommand => new RelayCommand<GameStartParameters>(AddGame);
+            var definition = GameViewModel.GetDefaultEngineDefinition();
+            DefaultEngine = GameViewModel.CreateEngineWrapper(definition);
+            DefaultPositionFactory = new PositionFactory(DefaultEngine);
+        }
+
+        public RelayCommand<GameStartParameters> AddGameCommand => new RelayCommand<GameStartParameters>(AddGame);
 		private void AddGame(GameStartParameters startParams)
 		{
 			AddGame(startParams.FactoryGroup, startParams.FactoryName, startParams.FactoryDelegate);
 		}
 
-		private void AddGame(FactoryGroup group, string factoryName, Func<Position> positionFactory)
+		private void AddGame(FactoryGroup group, string factoryName, Func<PositionFactory, Position> positionFactory)
 		{
-			var game = new AnalysisVersusEngineVM(factoryName, positionFactory);
+			var game = new AnalysisVersusEngineVM(factoryName, DefaultPositionFactory, positionFactory);
 			AddGame(game);
 		}
 

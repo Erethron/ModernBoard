@@ -6,8 +6,8 @@ namespace ChessVM.GameViewModels
 {
 	class AnalysisVersusEngineVM : VersusEngineVM
 	{
-		public AnalysisVersusEngineVM(string name, Func<Position> positionFactory)
-			:base(positionFactory)
+		public AnalysisVersusEngineVM(string name, PositionFactory positionFactory, Func<PositionFactory, Position> creationDelegate)
+			:base(positionFactory, creationDelegate)
 		{
 			Event = $"Analysis {name} vs Engine";
 		}

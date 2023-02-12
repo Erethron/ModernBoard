@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ArrayOfEngineDefinition>
-	<EngineDefinition Type="Uci" ExecutablePath="d:\Stockfish\stockfish.exe">
+	<EngineDefinition Type="Uci" ExecutablePath="d:\Schach\Lc0\Lc0.exe">
 		<AnalysisSettings>
 			<Option Name="Threads" Value="2"/>
 			<Option Name="MultiPV" Value="5"/>

@@ -92,32 +92,44 @@ namespace ChessVM.GameViewModels
 
 		private void InitializeChessEngine()
 		{
-			var serializer = new XmlSerializer(typeof(List<EngineDefinition>));
-			using (var strm = File.OpenRead("engine_config.xml"))
-			{
-				var engines = (List<EngineDefinition>)serializer.Deserialize(strm);
-				var definition = engines.First();
+            var definition = GetDefaultEngineDefinition();
+            Engine = CreateEngineWrapper(definition);
+            SetEngineOptions(definition);
 
-				switch (definition.Type)
-				{
-					case EngineType.Uci:
-						Engine = new UciEngineWrapper(definition.ExecutablePath);
-						break;
-
-					default:
-						throw new ApplicationException($"Invalid engine type {definition.Type}");
-				}
-
-				SetEngineOptions(definition);
-			}
-
-			for (int i = 0; i < 5; i++)
+            for (int i = 0; i < 5; i++)
 				_engineLines.Add("-");
 
 			EngineOutput = new ReadOnlyObservableCollection<string>(_engineOutput);
 			EngineLines = new ReadOnlyObservableCollection<string>(_engineLines);
 			_engineMoves = new string[_engineLines.Count];
 			Engine.EngineOutput += Engine_EngineOutput;
+		}
+
+		public static UciEngineWrapper CreateEngineWrapper(EngineDefinition definition)
+		{
+			UciEngineWrapper engine;
+			switch (definition.Type)
+			{
+				case EngineType.Uci:
+					engine = new UciEngineWrapper(definition.ExecutablePath);
+					break;
+
+				default:
+					throw new ApplicationException($"Invalid engine type {definition.Type}");
+			}
+
+			return engine;
+		}
+
+        public static EngineDefinition GetDefaultEngineDefinition()
+		{
+            var serializer = new XmlSerializer(typeof(List<EngineDefinition>));
+
+			using (var strm = File.OpenRead("engine_config.xml"))
+			{
+				var engines = (List<EngineDefinition>)serializer.Deserialize(strm);
+				return engines.First();
+			}
 		}
 
 		protected abstract void SetEngineOptions(EngineDefinition definition);

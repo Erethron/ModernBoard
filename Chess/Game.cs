@@ -86,7 +86,7 @@ namespace Chess
 
 		public static Game CreateNew()
 		{
-			return new Game(Position.GetStartPosition(), false);
+			return new Game(Position.GetStartPosition(null), false);
 		}
 
 		public static Game CreateNew(string startPositionFEN)
@@ -116,7 +116,7 @@ namespace Chess
 			if (info.TryGetValue("setup", out string setup) && setup == "1" && info.TryGetValue("fen", out string fen))
 				position = Position.FromFEN(fen);
 			else
-				position = Position.GetStartPosition();
+				position = Position.GetStartPosition(null);
 
 			var retval = new Game(position, setup == "1");
 

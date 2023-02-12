@@ -1,6 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ArrayOfEngineDefinition>
-	<EngineDefinition Type="Uci" ExecutablePath="E:\Stockfish\stockfish.exe">
+	<EngineDefinition Type="Uci" ExecutablePath="E:\Schach\Lc0\lc0.exe">
+		<AnalysisSettings>
+			<Option Name="MultiPV" Value="1"/>
+		</AnalysisSettings>
+		<GameSettings>
+			<Option Name="MultiPV" Value="1"/>
+		</GameSettings>
+	</EngineDefinition>
+	<EngineDefinition Type="Uci" ExecutablePath="E:\Schach\Stockfish\stockfish.exe">
 		<AnalysisSettings>
 			<Option Name="Skill Level" Value="20"/>
 			<Option Name="Threads" Value="4"/>

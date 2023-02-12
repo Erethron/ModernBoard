@@ -34,8 +34,8 @@ namespace ChessVM.GameViewModels
 		{
 		}
 
-		protected VersusEngineVM(Func<Position> positionFactory)
-			: this(Game.CreateNew(positionFactory.Invoke()))
+		protected VersusEngineVM(PositionFactory factory, Func<PositionFactory, Position> creationDelegate)
+			: this(Game.CreateNew(creationDelegate.Invoke(factory)))
 		{
 		}
 

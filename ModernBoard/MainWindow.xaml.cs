@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Windows;
+using Chess.EngineWrappers;
 using Chess.PositionFactories;
 using ChessVM;
 
@@ -11,6 +12,7 @@ namespace ModernBoard
 	/// </summary>
 	public partial class MainWindow : Window
 	{
+		
 		public MainWindow()
 		{
 			InitializeComponent();
