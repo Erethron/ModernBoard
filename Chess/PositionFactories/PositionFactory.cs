@@ -25,6 +25,12 @@ namespace Chess.PositionFactories
         public PositionFactory(UciEngineWrapper engine)
         {
             _engine = engine;
+
+            var path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            var file = Path.Combine(path, "PositionFactories", "PracticalEndgames.csv");
+            var csv = File.ReadAllLines(file);
+            EndGames = csv.Select(m => m.Split(';')).ToDictionary(s => s[1], s => s[0]);
+            Groups.Add(FactoryGroup.PracticalEndgames, EndGames.ToDictionary<KeyValuePair<string, string>, string, Func<PositionFactory, Position>>(eg => eg.Key, eg => delegate { return GetRandomFlipped(Position.FromFEN(eg.Value)); }));
         }
 
         private readonly Random _rand = new();
@@ -88,15 +94,6 @@ namespace Chess.PositionFactories
             }
         };
         private readonly Dictionary<string, string> EndGames;
-
-        PositionFactory()
-        {
-            var path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var file = Path.Combine(path, "PositionFactories", "PracticalEndgames.csv");
-            var csv = File.ReadAllLines(file);
-            EndGames = csv.Select(m => m.Split(';')).ToDictionary(s => s[1], s => s[0]);
-            Groups.Add(FactoryGroup.PracticalEndgames, EndGames.ToDictionary<KeyValuePair<string, string>, string, Func<PositionFactory, Position>>(eg => eg.Key, eg => delegate { return GetRandomFlipped(Position.FromFEN(eg.Value)); }));
-        }
 
         public Position GetPosition(FactoryGroup group, string type)
         {
